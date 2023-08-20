@@ -1,15 +1,39 @@
 <!DOCTYPE html>
 <html>
 
+  <head>
+    <link rel="stylesheet" href="static/css/style.css">
+  </head>
 
-  <body>
-    <h1>Live streaming</h1>
-    <div>
+  <body>    
 
-        <img src="{{ url_for('video') }}" width="50%"/>
+    <div class="header">
+      <h1>Welcome to the Organization's Facial Recognition Attendance System</h1>
     </div>
-            
-    </body>
+    <div class="container">
+      <div class="card">
+        <h2>Efficient Attendance Management</h2>
+        <p>Our advanced facial recognition technology simplifies attendance tracking for your organization.</p>
+        <div>
+          <a href="signup"><button style="width:20%;">Signup</button></a>
+          <a href="login"><button style="width:20%;">Login</button></a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>About the System</h2>
+        <p>Our system leverages cutting-edge facial recognition to streamline attendance recording, providing accurate and efficient tracking for your workforce.</p>
+      </div>
+      <div class="card">
+        <h2>Contact Us</h2>
+        <p>If you have any inquiries or require assistance, our dedicated support team is ready to help.</p>
+      </div>
+    </div>
+    <div class="footer">
+      <p>&copy; 2023 Organization's Facial Recognition Attendance System. All rights reserved.</p>
+    </div>
+  
+
+  </body>
 
 
 </html>

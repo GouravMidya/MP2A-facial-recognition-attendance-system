@@ -1,4 +1,4 @@
-from flask import Flask,render_template,Response
+from flask import Flask,render_template,Response,request,redirect,url_for
 import cv2
 
 app=Flask(__name__)
@@ -22,6 +22,22 @@ def generate_frames():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+@app.route('/main', methods=['GET', 'POST'])
+def main():
+    if request.method == 'POST':
+        # Process the login form data here
+        # Redirect to the main page or another appropriate route
+        return redirect(url_for('main'))  # Change this to the desired route
+    return render_template('main.html')
 
 @app.route('/video')
 def video():
