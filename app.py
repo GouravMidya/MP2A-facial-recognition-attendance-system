@@ -4,6 +4,10 @@ import cv2
 app=Flask(__name__)
 camera=cv2.VideoCapture(0)
 
+
+# Initialize the cascade classifier
+detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
 def generate_frames():
     while True:
             
@@ -12,6 +16,16 @@ def generate_frames():
         if not success:
             break
         else:
+
+            #detector=cv2.CascadeClassifier('/haarcascade/haarcascade_frontalface_default.xml')
+            faces=detector.detectMultiScale(frame,1.1,7)
+            for (x,y,w,h) in faces:
+                cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
+
+            #gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+                #roi_gray = gray[y:y+h,x:x+w]
+                #roi_color=frame[y:y+h,x:x+w]
+
             ret,buffer=cv2.imencode('.jpg',frame)
             frame=buffer.tobytes()
 
