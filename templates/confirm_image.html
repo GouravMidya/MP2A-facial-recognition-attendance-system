@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Images</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h1>Confirm Captured Images</h1>
+    </div>
+    <div class="container">
+        <form action="/confirm" method="post">
+            {% for image in images %}
+                <img src="data:image/jpeg;base64,{{ image }}" alt="Captured Image" width="300"><br><br>
+            {% endfor %}
+            
+            <button type="submit">Confirm</button>
+        </form>
+    </div>
+    <div class="footer">
+        <p>&copy; 2023 Organization's Facial Recognition Attendance System. All rights reserved.</p>
+    </div>
+</body>
+</html>
