@@ -1,33 +1,35 @@
 from flask import Flask, render_template, Response, request, redirect, url_for
 import cv2
-import base64
-from deepface import DeepFace
-import threading
+import face_recognition
 import os
+import time
 
 app = Flask(__name__)
 camera = cv2.VideoCapture(0)
-captured_images = []
+camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # Adjust the width as needed
+camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)  # Adjust the height as needed
+camera.set(cv2.CAP_PROP_FPS, 45)  # Adjust the frame rate as needed
 
-# Initialize the cascade classifier
-detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+# Path to the folder containing reference images
+facedb_path = 'facedb'
 
+def is_image_file(file_path):
+    # Check if the file is an image based on the file extension
+    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
+    return any(file_path.lower().endswith(ext) for ext in image_extensions)
 
+def load_reference_images():
+    reference_images = {}
+    for root, dirs, files in os.walk(facedb_path):
+        for file in files:
+            reference_img_path = os.path.join(root, file)
+            if is_image_file(reference_img_path):
+                name = os.path.splitext(file)[0]  # Extract the name without extension
+                image = face_recognition.load_image_file(reference_img_path)
+                reference_images[name] = face_recognition.face_encodings(image)[0]
+    return reference_images
 
-face_cap = cv2.CascadeClassifier("C:/Users/admin/AppData/Local/Programs/Python/Python311/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
-cap = cv2.VideoCapture( cv2.CAP_DSHOW)
-
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-counter = 0 
-
-face_match = False
-
-reference_img1 = cv2.imread('face-db\Prathamesh Naik\prathamesh1.jpg')
-reference_img2 = cv2.imread('face-db\Prathamesh Naik\prathamesh2.jpg')
-ref = [reference_img1,reference_img2]
-
+reference_encodings = load_reference_images()
 
 
 def generate_frames():
@@ -36,10 +38,14 @@ def generate_frames():
         if not success:
             break
         else:
-            is_match = recognize_face(frame)
+            start_time = time.time()
+            is_match, matched_name = recognize_face(frame)
+            end_time = time.time()
+            execution_time = end_time - start_time
+            print(f"Face recognition time: {execution_time} seconds")
 
             if is_match:
-                cv2.putText(frame, "MATCH", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(frame, f"MATCH ({matched_name})", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             else:
                 cv2.putText(frame, "NO MATCH", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
@@ -49,27 +55,21 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-
 def recognize_face(frame):
-    global captured_images
+    face_locations = face_recognition.face_locations(frame)
+    if not face_locations:
+        return False, None
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = detector.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+    face_encodings = face_recognition.face_encodings(frame, face_locations)
 
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+    for encoding in face_encodings:
+        for name, reference_encoding in reference_encodings.items():
+            result = face_recognition.compare_faces([reference_encoding], encoding)
+            if result[0]:
+                return True, name
 
-        # Convert the captured image to base64
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame_data = base64.b64encode(buffer).decode('utf-8')
+    return False, None
 
-        if len(captured_images) > 0:
-            for image_data in captured_images:
-                result = DeepFace.verify(image_data, frame_data, model_name="VGG-Face")
-                if result['verified']:
-                    return True
-
-    return False
 
 
 
@@ -129,9 +129,12 @@ def confirm():
 
 
 @app.route('/video')
-def video():
+def video_stream():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/live')
+def video():
+    return render_template('live.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
