@@ -16,10 +16,15 @@ body {
     /*border: 3px solid #73AD21;*/
     font-weight: 700;
     font-size: 30px;
-    color: #012970;
     padding : 1%;
     background-color: #ffffff;
     height: 7%;
+    
+}
+
+.header a{
+    text-decoration: none;
+    color: #012970;
 }
 
 ul {
