@@ -10,5 +10,39 @@
     <div class="header">
         Attendify
     </div>
+    <ul>
+        <li><a class="active" href="#home">Home</a></li>
+        <br>
+        <section style="color:#012970 ;">Manage Students</section>
+        <hr style="width: 75%;">
+        <li><a href="#news" id="addStudentLink">Add Student</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+
+    <div id="currentContent">
+        <!-- Your current content goes here -->
+        <p>This is the current content.</p>
+    </div>
+
+    <div id="addStudentContent" style="display: none;">
+        <h2>Add Student</h2>
+    <form id="studentForm">
+        <div>
+            <label for="studentName">Student Name:</label>
+            <input type="text" id="studentName" name="studentName" required>
+        </div>
+        <div>
+            <label for="studentPicture">Student Picture:</label>
+            <input type="file" id="studentPicture" name="studentPicture" accept="image/*">
+            <img id="previewImage" src="#" alt="Preview" style="display: none; max-width: 100px;">
+        </div>
+        <div>
+            <button type="submit">Add Student</button>
+        </div>
+    </form>
+    </div>
+
+      <script src="script.js"></script>
 </body>
 </html>
