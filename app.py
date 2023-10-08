@@ -4,6 +4,7 @@ import face_recognition
 from multiprocessing import Process, Queue, Pipe
 import os
 import time
+import multiprocessing
 
 app = Flask(__name__)
 camera = cv2.VideoCapture(0)
