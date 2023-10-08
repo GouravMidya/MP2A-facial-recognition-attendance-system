@@ -1,17 +1,108 @@
-//dashboard script
+// Dashboard script
 
+// All navbar links
+const viewattendanceLink = document.getElementById("viewattendanceLink");
+const takeattendanceLink = document.getElementById("takeattendanceLink");
 const addStudentLink = document.getElementById("addStudentLink");
-const currentContent = document.getElementById("currentContent");
-const addStudentContent = document.getElementById("addStudentContent");
-const studentForm = document.getElementById("studentForm");
-const studentPicture = document.getElementById("studentPicture");
-const previewImage = document.getElementById("previewImage");
+const viewStudentLink = document.getElementById("viewStudentLink");
 
-addStudentLink.addEventListener("click", function() {
-    // Toggle visibility of the divs
-    currentContent.style.display = "none";
+// All containers
+const viewattendancecontainer = document.getElementById("viewattendance-container");
+const takeattendancecontainer = document.getElementById("takeattendance-container");
+const addStudentContent = document.getElementById("addStudentContent");
+const viewstudentcontainer = document.getElementById("viewstudent-container");
+
+// Function to hide all content containers
+function hideAllContainers() {
+    viewattendancecontainer.style.display = "none";
+    takeattendancecontainer.style.display = "none";
+    addStudentContent.style.display = "none";
+    viewstudentcontainer.style.display = "none";
+}
+
+// Initial setup: hide all containers
+hideAllContainers();
+
+// Event listeners for navigation links
+viewattendanceLink.addEventListener("click", function () {
+    // Select all elements with the class "myClass"
+    var elements = document.querySelectorAll(".active");
+
+    // Loop through the selected elements and remove the class
+    elements.forEach(function(element) {
+        element.classList.remove("active");
+    });
+
+    // Get the element by its ID
+    var element = document.getElementById("viewattendanceLink");
+
+    // Set the class for the element
+    element.className = "active";
+
+
+    hideAllContainers();
+    viewattendancecontainer.style.display = "block";
+});
+
+takeattendanceLink.addEventListener("click", function () {
+    // Select all elements with the class "myClass"
+    var elements = document.querySelectorAll(".active");
+
+    // Loop through the selected elements and remove the class
+    elements.forEach(function(element) {
+        element.classList.remove("active");
+    });
+
+    // Get the element by its ID
+    var element = document.getElementById("takeattendanceLink");
+
+    // Set the class for the element
+    element.className = "active";
+
+
+    hideAllContainers();
+    takeattendancecontainer.style.display = "block";
+});
+
+addStudentLink.addEventListener("click", function () {
+    // Select all elements with the class "myClass"
+    var elements = document.querySelectorAll(".active");
+
+    // Loop through the selected elements and remove the class
+    elements.forEach(function(element) {
+        element.classList.remove("active");
+    });
+
+    // Get the element by its ID
+    var element = document.getElementById("addStudentLink");
+
+    // Set the class for the element
+    element.className = "active";
+
+
+    hideAllContainers();
     addStudentContent.style.display = "block";
 });
+
+viewStudentLink.addEventListener("click", function () {
+    // Select all elements with the class "myClass"
+    var elements = document.querySelectorAll(".active");
+
+    // Loop through the selected elements and remove the class
+    elements.forEach(function(element) {
+        element.classList.remove("active");
+    });
+
+    // Get the element by its ID
+    var element = document.getElementById("viewStudentLink");
+
+    // Set the class for the element
+    element.className = "active";
+
+    hideAllContainers();
+    viewstudentcontainer.style.display = "block";
+});
+
 
 // Function to handle file input change and preview the selected image
 studentPicture.addEventListener("change", function () {

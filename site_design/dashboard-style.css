@@ -31,7 +31,7 @@ ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    width: 25%;
+    width: 20%;
     background-color: #f1f1f1;
     position: fixed;
     overflow: auto;
@@ -48,7 +48,7 @@ ul {
   }
 
   li a.active {
-    background-color: #04AA6D;
+    background-color: #012970;
     color: white;
   }
 
@@ -56,3 +56,24 @@ ul {
     background-color: #555;
     color: white;
   }
+
+.viewattendance-container{
+  width: 80%;
+  position: fixed;
+  left:20%;
+  top:12%;
+  height: 88%;
+}
+
+#viewattendance-header{
+  padding-left: 2%;
+}
+
+.viewattendance-box{
+  background-color: #ffffff;
+  width: 85%;
+  margin-left: 4%;
+  padding: 2%;
+  border-radius: 20px;
+  height: 70%;
+}
