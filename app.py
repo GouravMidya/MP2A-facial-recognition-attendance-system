@@ -3,6 +3,7 @@ import cv2
 import face_recognition
 import os
 import time
+import base64
 
 app = Flask(__name__)
 camera = cv2.VideoCapture(0)
