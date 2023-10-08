@@ -9,6 +9,9 @@ body {
     overflow: hidden;
 }
 .header{
+    display: flex;
+    justify-content: space-between; /* Align items on both ends */
+    align-items: center; /* Vertically center items */
     position : fixed;
     top : 0;
     left:0;
@@ -18,8 +21,7 @@ body {
     font-size: 30px;
     padding : 1%;
     background-color: #ffffff;
-    height: 7%;
-    
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .header a{
@@ -27,16 +29,21 @@ body {
     color: #012970;
 }
 
+.welcome {
+  margin-right: 2%; /* Add some space between "Attendify" and "Welcome" */
+}
+
 ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    padding-top: 10px;
     width: 20%;
-    background-color: #f1f1f1;
+    background-color: #ffffff;
     position: fixed;
     overflow: auto;
     left:0%;
-    top:12%;
+    top:9%;
     height: 88%;
   }
 
@@ -57,7 +64,7 @@ ul {
     color: white;
   }
 
-.viewattendance-container{
+#viewattendance-container{
   width: 80%;
   position: fixed;
   left:20%;
@@ -76,4 +83,102 @@ ul {
   padding: 2%;
   border-radius: 20px;
   height: 70%;
+}
+
+#attendance-form{
+  display: flex;
+  justify-content: space-between; /* Align items on both ends */
+  align-items: center; /* Vertically center items */
+}
+
+#attendance-table-container{
+  margin-top: 1%;
+}
+
+#attendance-table{
+  background-color: #012970;
+  color: #f0f4fb;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#attendance-table th,
+#attendance-table td {
+    padding: 10px; /* Increase padding for better spacing */
+    text-align: center; /* Center-align text */
+}
+
+#attendance-table th {
+    background-color: #012970;
+    color: #f0f4fb;
+    font-weight: bold;
+}
+
+#attendance-table th:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+#attendance-table th:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#attendance-table td{
+  background-color: #ffffff;
+  color: #000;
+}
+
+#fetch-button{
+  display: flex;
+  background-color: #012970;
+  color: #f0f4fb;
+  margin-left: 2%;
+  padding: 1%;
+  border:1px solid #999;
+  border-radius: 12px;
+  margin-right: 1%;
+}
+
+#takeattendance-container{
+  width: 80%;
+  position: fixed;
+  left:20%;
+  top:12%;
+  height: 88%;
+}
+
+#takeattendance-header{
+  padding-left: 2%;
+}
+
+.takeattendance-box{
+  background-color: #ffffff;
+  width: 85%;
+  margin-left: 4%;
+  padding: 2%;
+  border-radius: 20px;
+  height: 70%;
+}
+
+#start-button{
+  background-color: #012970;
+  color: #f0f4fb;
+  margin-left: 5%;
+  padding: 1%;
+  border:1px solid #999;
+  border-radius: 12px;
+}
+
+#camera-feed{
+  margin-top: 3%;
+  border:1px solid #999;
+  width: 70%;
+  height: 80%;
+}
+
+#attendance-text{
+  position: fixed;
+  top: 43%;
+  right: 7%;
 }

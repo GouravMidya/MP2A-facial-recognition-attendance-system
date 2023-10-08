@@ -9,6 +9,7 @@
 <body>
     <div class="header">
         <a href="index.html">Attendify</a>
+        <div class="welcome">Welcome Admin</div>
     </div>
     <ul>
         <section style="color:#012970 ;">Manage Classrooms</section>
@@ -39,14 +40,14 @@
                     <!-- Add more classroom options here -->
                 </select>
 
-                <label for="subject">Select Subject:</label>
+                <label for="subject" style="margin-left: 5%;">Select Subject:</label>
                 <select id="subject" name="subject">
                     <option value="subject1">Subject 1</option>
-                    <option value="subject2">Subject 2</option>
+                    <option value="subject2" >Subject 2</option>
                     <!-- Add more subject options here -->
                 </select>
 
-                <button type="submit">Fetch Records</button>
+                <button type="submit" id="fetch-button">Fetch Records</button>
             </form>
 
             <div id="attendance-table-container">
@@ -61,6 +62,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr>
+                            <td>14</td>
+                            <td>Gourav Midya</td>
+                            <td>14</td>
+                            <td>16</td>
+                            <td>80%</td>
+                        </tr>
                         <!-- Attendance records will be populated here -->
                     </tbody>
                 </table>
@@ -69,8 +77,32 @@
     </div>
 
     <div id="takeattendance-container" style="display: none;">
-        <!-- Your current content goes here -->
-        <p>This is the current content.</p>
+        <h1 id="takeattendance-header">Take Attendance</h1>
+        <div class="takeattendance-box">
+            <form id="attendance-form2">
+                <label for="classroom2">Select Classroom:</label>
+                <select id="classroom2" name="classroom">
+                    <option value="classroom1">Classroom 1</option>
+                    <option value="classroom2">Classroom 2</option>
+                    <!-- Add more classroom options here -->
+                </select>
+
+                <label for="subject2" style="margin-left: 5%;">Select Subject:</label>
+                <select id="subject2" name="subject">
+                    <option value="subject1">Subject 1</option>
+                    <option value="subject2" >Subject 2</option>
+                    <!-- Add more subject options here -->
+                </select>
+
+                <button type="submit" id="start-button">Start Camera</button>
+            </form>
+            <div id="camera-feed">
+                Idhar hoga camera feed
+            </div>
+            <div id="attendance-text">
+                <textarea name="attendance-record" id="attendance-record" cols="25" rows="15"></textarea>
+            </div>
+        </div>
     </div>
 
     <div id="addStudentContent" style="display: none;">
