@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="header">
-        Attendify
+        <a href="index.html">Attendify</a>
     </div>
     <div class="desc">
         Attendance for your 
@@ -19,15 +19,36 @@
             Transform attendance tracking using our precise, efficient, and secure facial recognition system. Simplify attendance management for businesses and institutions seamlessly.
         </div>
     </div>
-    <div class="login">
+
+
+    <div class="login-container">
         <h1 class="login-head">Login</h1>
-        <form action="">
-            <input type="email" name="" id="" placeholder="Your email" class="login-box"><br>
-            <input type="password" name="" id="" placeholder="Your password" class="login-box"><br>
-            <a href="dashboard.html"><input type="button" value="Login" class="login-button"></a>
+        <!-- Login form and content goes here -->
+        <form >
+            <!-- Login form fields -->
+            <input type="text" placeholder="Username" name="username" id="text-box">
+            <input type="password" placeholder="Password" name="password" id="text-box">
+            <button type="submit" id="login-button">Login</button>
         </form>
-        <div class="signup-prompt">Dont have an account? <a href="">Sign Up</a></div>
+        <a href="dashboard.html">Login</a>
+        <p>Dont have an account?<a href="#" id="signup-link">Sign Up</a></p>
     </div>
-    <script src="script.js"></script>
+
+    <div class="signup-container">
+        <h2>Sign Up</h2>
+        <!-- Sign-up form and content goes here -->
+        <form>
+            <!-- Sign-up form fields -->
+            <input type="text" placeholder="Full Name" name="fullname" id="text-box">
+            <input type="email" placeholder="Email" name="email" id="text-box">
+            <input type="password" placeholder="Password" name="password" id="text-box">
+            <button type="submit" id="signup-button">Sign Up</button>
+        </form>
+        <p><a href="#" id="login-link">Login</a></p>
+    </div>
+
+
+
+    <script src="index_script.js"></script>
 </body>
 </html>

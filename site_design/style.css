@@ -16,10 +16,15 @@ body {
     /*border: 3px solid #73AD21;*/
     font-weight: 700;
     font-size: 30px;
-    color: #012970;
     padding : 1%;
     background-color: #ffffff;
 }
+
+.header a{
+    text-decoration: none;
+    color: #012970;
+}
+
 .desc{
     position : fixed;
     top : 20vh;
@@ -46,7 +51,7 @@ body {
     
 }
 
-.login{
+.login-container{
     position: fixed;
     box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.3);
     top:auto;
@@ -55,13 +60,14 @@ body {
     height: 55%;
     text-align: center;
     background-color: #ffffff;
+    display: block;
 }
 
 .login-head{
     color: #012970;
 }
 
-.login-box{
+#text-box{
     border-radius: 20px;
     padding: 2%;
     margin: 3%;
@@ -69,7 +75,7 @@ body {
     border:1px solid #999;
 }
 
-.login-button{
+#login-button{
     background-color: #012970;
     color: #f0f4fb;
     padding: 2%;
@@ -86,4 +92,27 @@ body {
 
 .signup-prompt{
     margin-top: 4%;
+}
+
+.signup-container {
+    display: none;
+    position: fixed;
+    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.3);
+    top:auto;
+    right: 10%;
+    width: 30%;
+    height: 75%;
+    text-align: center;
+    background-color: #ffffff;
+}
+
+#signup-button{
+    background-color: #012970;
+    color: #f0f4fb;
+    padding: 2%;
+    margin: 2%;
+    width: 70%;
+    border:1px solid #999;
+    border-radius: 20px;
+    font-weight: 700;
 }

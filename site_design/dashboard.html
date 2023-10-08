@@ -8,19 +8,67 @@
 </head>
 <body>
     <div class="header">
-        Attendify
+        <a href="index.html">Attendify</a>
     </div>
     <ul>
-        <li><a class="active" href="#home">Home</a></li>
+        <section style="color:#012970 ;">Manage Classrooms</section>
+        <hr style="width: 75%;">
+
+        <li><a href="#" id="viewattendanceLink">View Attendance</a></li>
+        <li><a href="#" id="takeattendanceLink">Take Attendance</a></li>
         <br>
+
         <section style="color:#012970 ;">Manage Students</section>
         <hr style="width: 75%;">
-        <li><a href="#news" id="addStudentLink">Add Student</a></li>
-        <li><a href="#contact">Contact</a></li>
-        <li><a href="#about">About</a></li>
-      </ul>
+        
+        <li><a href="#" id="addStudentLink">Add Students</a></li>
+        <li><a href="#" id="viewStudentLink">View Students</a></li>
+        <li><a href="#">About</a></li>
 
-    <div id="currentContent">
+    </ul>
+
+
+    <div id="viewattendance-container" style="display: none;">
+        <h1 id="viewattendance-header">View Attendance</h1>
+        <div class="viewattendance-box">
+            <form id="attendance-form">
+                <label for="classroom">Select Classroom:</label>
+                <select id="classroom" name="classroom">
+                    <option value="classroom1">Classroom 1</option>
+                    <option value="classroom2">Classroom 2</option>
+                    <!-- Add more classroom options here -->
+                </select>
+
+                <label for="subject">Select Subject:</label>
+                <select id="subject" name="subject">
+                    <option value="subject1">Subject 1</option>
+                    <option value="subject2">Subject 2</option>
+                    <!-- Add more subject options here -->
+                </select>
+
+                <button type="submit">Fetch Records</button>
+            </form>
+
+            <div id="attendance-table-container">
+                <table id="attendance-table" border="1">
+                    <thead>
+                        <tr>
+                            <th>Roll Number</th>
+                            <th>Name</th>
+                            <th>Attendance</th>
+                            <th>Total Lectures</th>
+                            <th>Attendance Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Attendance records will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="takeattendance-container" style="display: none;">
         <!-- Your current content goes here -->
         <p>This is the current content.</p>
     </div>
@@ -43,6 +91,11 @@
     </form>
     </div>
 
-      <script src="script.js"></script>
+    <div id="viewstudent-container" style="display: none;">
+        <!-- Your current content goes here -->
+        <p>This is the current content.</p>
+    </div>
+
+      <script src="dashboard_script.js"></script>
 </body>
 </html>
