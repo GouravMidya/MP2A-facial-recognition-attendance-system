@@ -98,12 +98,12 @@ def face_recognition_worker(fi, fl):
 
 
 if __name__ == "__main__":
-    multiprocessing.set_start_method('spawn')
-    video_input = 0
+        multiprocessing.set_start_method('spawn')
+        video_input = 0
 
-    num_processes = 2  # Set the number of processes
+        num_processes = 2  # Set the number of processes
 
-    with Process() as face_recognition_process:
+        #with Process() as face_recognition_process:
         fi = Queue(maxsize=14)
         parent_p, child_p = Pipe()
 
@@ -147,7 +147,7 @@ if __name__ == "__main__":
             process.terminate()
 
 @app.route('/')
-def index():
+def dashboard():
     return render_template('dashboard.html')
 
 
