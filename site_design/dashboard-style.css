@@ -161,7 +161,7 @@ ul {
   height: 70%;
 }
 
-#start-button{
+#camera-button{
   background-color: #012970;
   color: #f0f4fb;
   margin-left: 5%;
@@ -181,4 +181,98 @@ ul {
   position: fixed;
   top: 43%;
   right: 7%;
+}
+
+#addStudentContent{
+  width: 80%;
+  position: fixed;
+  left:20%;
+  top:12%;
+  height: 88%;
+}
+
+#addStudentHeader{
+  padding-left: 2%;
+}
+
+#studentForm{
+  background-color: #ffffff;
+  width: 85%;
+  margin-left: 4%;
+  padding: 2%;
+  border-radius: 20px;
+  height: 70%;
+}
+
+#addstudentinfo{
+  border: 1;
+}
+
+#addstudentinfo td{
+  padding: 2%;
+}
+
+#viewstudent-container{
+  width: 80%;
+  position: fixed;
+  left:20%;
+  top:12%;
+  height: 88%;
+}
+
+#viewstudent-header{
+  padding-left: 2%;
+}
+
+.viewstudent-box{
+  background-color: #ffffff;
+  width: 85%;
+  margin-left: 4%;
+  padding: 2%;
+  border-radius: 20px;
+  height: 70%;
+}
+
+#student-form{
+  display: flex;
+  justify-content: space-between; /* Align items on both ends */
+  align-items: center; /* Vertically center items */
+}
+
+#student-table-container{
+  margin-top: 1%;
+}
+
+#student-table{
+  background-color: #012970;
+  color: #f0f4fb;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#student-table th,
+#student-table td {
+    padding: 10px; /* Increase padding for better spacing */
+    text-align: center; /* Center-align text */
+}
+
+#student-table th {
+    background-color: #012970;
+    color: #f0f4fb;
+    font-weight: bold;
+}
+
+#student-table th:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+#student-table th:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#student-table td{
+  background-color: #ffffff;
+  color: #000;
 }
