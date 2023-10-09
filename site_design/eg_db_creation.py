@@ -1,7 +1,7 @@
 import mysql.connector
 
 # Connect to MySQL (ensure MySQL server is running)
-db_connection = mysql.connector.connect(
+'''db_connection = mysql.connector.connect(
     host="localhost",
     user="root",
     password="root"
@@ -10,7 +10,7 @@ db_connection = mysql.connector.connect(
 # Create a database named 'attendify' if it doesn't exist
 db_cursor = db_connection.cursor()
 db_cursor.execute("CREATE DATABASE IF NOT EXISTS attendify")
-db_cursor.close()
+db_cursor.close()'''
 
 # Connect to the 'attendify' database
 db_connection = mysql.connector.connect(

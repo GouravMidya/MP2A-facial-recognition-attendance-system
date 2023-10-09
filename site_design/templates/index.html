@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendify</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
     <div class="header">
-        <a href="index.html">Attendify</a>
+        <a href="/">Attendify</a>
     </div>
     <div class="desc">
         Attendance for your 
@@ -24,13 +24,12 @@
     <div class="login-container">
         <h1 class="login-head">Login</h1>
         <!-- Login form and content goes here -->
-        <form >
+        <form method="POST" >
             <!-- Login form fields -->
             <input type="text" placeholder="Username" name="username" id="text-box">
             <input type="password" placeholder="Password" name="password" id="text-box">
             <button type="submit" id="login-button">Login</button>
         </form>
-        <a href="dashboard.html">Login</a>
         <p>Dont have an account?<a href="#" id="signup-link">Sign Up</a></p>
     </div>
 
@@ -49,6 +48,6 @@
 
 
 
-    <script src="index_script.js"></script>
+    <script src="static/index_script.js"></script>
 </body>
 </html>
