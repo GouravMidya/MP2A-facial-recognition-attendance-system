@@ -94,7 +94,8 @@
                     <!-- Add more subject options here -->
                 </select>
 
-                <button type="submit" id="start-button">Start Camera</button>
+                <button type="submit" id="camera-button">Start Camera</button>
+                <button type="submit" id="camera-button">Stop Camera</button>
             </form>
             <div id="camera-feed">
                 Idhar hoga camera feed
@@ -106,26 +107,84 @@
     </div>
 
     <div id="addStudentContent" style="display: none;">
-        <h2>Add Student</h2>
-    <form id="studentForm">
-        <div>
-            <label for="studentName">Student Name:</label>
-            <input type="text" id="studentName" name="studentName" required>
-        </div>
-        <div>
-            <label for="studentPicture">Student Picture:</label>
-            <input type="file" id="studentPicture" name="studentPicture" accept="image/*">
-            <img id="previewImage" src="#" alt="Preview" style="display: none; max-width: 100px;">
-        </div>
-        <div>
-            <button type="submit">Add Student</button>
-        </div>
-    </form>
+        <h2 id="addStudentHeader">Add Student</h2>
+        <form id="studentForm">
+            <table id="addstudentinfo" border="1">
+                <tr>
+                    <td><label for="studentName">Student Name:</label></td>
+                    <td colspan="2"><input type="text" id="studentName" name="studentName" required></td>
+                </tr>
+                <tr>
+                    <td><label for="studentEmail">Email ID:</label></td>
+                    <td colspan="2"><input type="email" id="studentEmail" name="studentEmail" required></td>
+                </tr>
+                <tr>
+                    <td><label for="studentRollNumber">Roll Number:</label></td>
+                    <td colspan="2"><input type="text" id="studentRollNumber" name="studentRollNumber" required></td>
+                </tr>
+                <tr>
+                    <td><label for="classroom">Classroom ID:</label></td>
+                    <td><input type="text" id="classroomSearch" placeholder="Search Classroom"></td>
+                    <td><select id="classroom" name="classroom" required>
+                        <option value="">Select Classroom</option>
+                        <option value="classroom1">Comps T.E. B</option>
+                        <option value="classroom2">IT B.E. A</option>
+                        <option value="classroom3">Classroom 3</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                    </td>
+                </tr>
+            </table>    
+                    <label for="studentPicture">Student Picture:</label>
+                    <input type="file" id="studentPicture" name="studentPicture" accept="image/*">
+                    <img id="previewImage" src="#" alt="Preview" style="display: none; max-width: 100px;">
+                    <div>
+                        <button type="submit">Add Student</button>
+                    </div>
+            
+        </form>
+        
     </div>
 
     <div id="viewstudent-container" style="display: none;">
-        <!-- Your current content goes here -->
-        <p>This is the current content.</p>
+        <h1 id="viewstudent-header">View Students:</h1>
+        <div class="viewstudent-box">
+            <form id="student-form">
+                <label for="classroom">Select Classroom:</label>
+                <select id="classroom" name="classroom">
+                    <option value="classroom1">Classroom 1</option>
+                    <option value="classroom2">Classroom 2</option>
+                    <!-- Add more classroom options here -->
+                </select>
+                <button type="submit" id="fetch-button">Fetch Records</button>
+            </form>
+
+            <div id="student-table-container">
+                <table id="student-table" border="1">
+                    <thead>
+                        <tr>
+                            <th>Roll Number</th>
+                            <th>Name</th>
+                            <th>Attended Lectures</th>
+                            <th>Total Lectures</th>
+                            <th>Attendance Percentage</th>
+                            <th>Student Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>14</td>
+                            <td>Gourav Midya</td>
+                            <td>14</td>
+                            <td>16</td>
+                            <td>80%</td>
+                            <td><a href="">image link here</a></td>
+                        </tr>
+                        <!-- Attendance records will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
       <script src="dashboard_script.js"></script>
