@@ -150,11 +150,15 @@
                 <button type="submit" id="camera-button">Start Camera</button>
                 <button type="submit" id="camera-button">Stop Camera</button>
             </form>
+            <!-- In your dashboard.html file -->
+            <!-- In your dashboard.html file -->
             <div id="camera-feed">
-                Idhar hoga camera feed
+                <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Live Video Feed" width="700" height="355">
             </div>
+
+
             <div id="attendance-text">
-                <textarea name="attendance-record" id="attendance-record" cols="25" rows="15"></textarea>
+                <textarea name="attendance-record" id="attendance-record" cols="25" rows="15">{{ status }}</textarea>
             </div>
         </div>
     </div>

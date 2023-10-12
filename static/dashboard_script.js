@@ -164,3 +164,64 @@ function deleteNote(noteId) {
       window.location.href = "/";
     });
   }
+
+  let videoStream;
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let context = canvas.getContext('2d');
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    videoStream = stream;
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(err => console.error('Error accessing camera:', err));
+
+            // Show the video element
+            video.style.display = 'block';
+        }
+
+        function takePicture() {
+            if (!videoStream) {
+                console.error('Camera not started');
+                return;
+            }
+
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/png');
+
+            // Send the image data to the server using Fetch API
+            fetch('/save-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ imageData }),
+            })
+            .then(response => response.json())
+            .then(data => console.log('Image saved:', data))
+            .catch(error => console.error('Error saving image:', error));
+        }
+
+        function stopCamera() {
+            // Stop all tracks in the stream
+            if (videoStream) {
+                const tracks = videoStream.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+
+            // Remove the stream from the video element
+            video.srcObject = null;
+
+            // Hide the video element
+            video.style.display = 'none';
+        }
+
+
+        // Video feed
+
+       // In Video Showing code
+       var video_feed = document.getElementById('video-feed');
+       video.src = "{{ url_for('video_feed') }}";
