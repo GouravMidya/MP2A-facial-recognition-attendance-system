@@ -225,3 +225,16 @@ function deleteNote(noteId) {
        // In Video Showing code
        var video_feed = document.getElementById('video-feed');
        video.src = "{{ url_for('video_feed') }}";
+
+
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    // Listen for updates to the present list
+    socket.on('update_present', function(data) {
+        // Update the content of the 'attendance-record' div
+        var presentList = data.present.join('\n');
+        document.getElementById('attendance-record').innerHTML = presentList;
+    });
+
+    // Request an initial update when the page loads
+    socket.emit('update_present_request');

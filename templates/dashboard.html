@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendify</title>
     <link rel="stylesheet" href="static/dashboard-style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
 </head>
 <body>
     
@@ -158,7 +159,14 @@
 
 
             <div id="attendance-text">
-                <textarea name="attendance-record" id="attendance-record" cols="25" rows="15">{{ status }}</textarea>
+                <h2>Present Students:</h2>
+                <textarea name="attendance-record" id="attendance-record" cols="25" rows="15">
+                    <div>
+                        {% for student in present %}
+                            <p>{{ student }}</p>
+                        {% endfor %}
+                    </div>
+                </textarea>
             </div>
         </div>
     </div>

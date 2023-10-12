@@ -6,8 +6,11 @@ import os
 import time
 import multiprocessing
 import mysql.connector
+from flask_socketio import SocketIO, emit
+
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 app.secret_key = 'your_secret_key_here'
 
@@ -34,7 +37,7 @@ camera.set(cv2.CAP_PROP_FPS, 30)
 
 facedb_path = 'facedb'
 reference_encodings = {}
-
+present = []
 # Maintain a dictionary to track the presence of individuals and their timers
 presence_timers = {}
 
@@ -59,37 +62,55 @@ load_reference_images()
 presence_timers = {} 
 
 def generate_frames():
+    global present
+
     while True:
         success, frame = camera.read()
         if not success:
             break
         else:
             is_match, matched_names = recognize_face(frame)
+
+            # Initialize a dictionary to keep track of faces in the current frame
+            current_frame_faces = {}
+
             if is_match:
                 text = f"MATCH ({', '.join(matched_names)})"
                 cv2.putText(frame, text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-                # Update or initialize timers for matched faces
                 for name in matched_names:
                     if name not in presence_timers:
-                        presence_timers[name] = time.time()
+                        presence_timers[name] = {'start_time': time.time(), 'duration': 0}
                     else:
-                        elapsed_time = time.time() - presence_timers[name]
-                        if elapsed_time >= 2:
-                            status = name + " marked as Present"
+                        elapsed_time = time.time() - presence_timers[name]['start_time']
+
+                        if elapsed_time >= 10:
                             # Here you can perform any action to mark the person as present
-                            # Reset the timer after marking as present
-                            presence_timers[name] = time.time()
+                            present.append(name)
                             del reference_encodings[name]
-            else:
-                cv2.putText(frame, "NO NEW MATCHES", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                            presence_timers[name]['start_time'] = time.time()
+                            presence_timers[name]['duration'] = 0
+                        else:
+                            presence_timers[name]['duration'] = elapsed_time
+
+                    # Mark this face as present in the current frame
+                    current_frame_faces[name] = True
+
+            # Reset timers for faces not detected in the current frame
+            for name in presence_timers.keys():
+                if name not in current_frame_faces:
+                    presence_timers[name]['start_time'] = time.time()
+                    presence_timers[name]['duration'] = 0
+
+            # Other parts of your code...
 
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-    return status
+            socketio.emit('update_present', {'present': present})
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
 
 def recognize_face(frame):
     face_locations = face_recognition.face_locations(frame, model="hog")
@@ -205,10 +226,20 @@ def dashboard():
 
     return render_template('dashboard.html', message=session.pop('message', ''),
                            teacher_id=teacher_id, teacher_name=teacher_name,
-                           classrooms_json=json.dumps(classrooms), video_feed=video_feed)
+                           classrooms_json=json.dumps(classrooms), video_feed=video_feed, present=present)
 
 
 # In your Flask application
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@socketio.on('update_present_request')
+def handle_update_present_request():
+    emit('update_present', {'present': present})
+
+if __name__ == "__main__":
+    # ... (existing code)
+
+    # Start Flask and SocketIO
+    socketio.run(app, debug=True)
