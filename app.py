@@ -191,22 +191,47 @@ if __name__ == "__main__":
         for process in processes:
             process.terminate()
 
-@app.route('/', methods=['GET','POST'] )
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         email = request.form.get('username')
         password = request.form.get('password')
         try:
-            db_cursor.execute("SELECT * FROM teachers WHERE Email = '"+email+"';")
-            val = db_cursor.fetchall()
-            if (email==val[0][2] and password==val[0][3]):
+            db_cursor.execute("SELECT * FROM teachers WHERE Email = %s;", (email,))
+            val = db_cursor.fetchone()
+            if val and password == val[3]:  # Use integer index to access 'Password'
                 session['message'] = 'Logged in successfully!'
-                session['teacher_id'] = val[0][0]
-                print(session['teacher_id'])
-                session['teacher_name'] = val[0][1]
+                session['teacher_id'] = val[0]  # Use integer index to access 'TeacherID'
+                session['teacher_name'] = val[1]  # Use integer index to access 'FullName'
                 return redirect(url_for('dashboard'))
-        except:
+            else:
+                session['message'] = 'Login failed'
+        except Exception as e:
+            print("Login failed:", str(e))
             session['message'] = 'Login failed'
+
+    return render_template('index.html')
+
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    if request.method == 'POST':
+        full_name = request.form.get('fullname')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        try:
+            db_cursor.execute("INSERT INTO teachers (FullName, Email, Password) VALUES (%s, %s, %s)",
+                              (full_name, email, password))
+            db_connection.commit()
+
+            session['message'] = 'Signup successful! Please login.'
+            return redirect(url_for('index'))
+        except Exception as e:
+            print("Signup failed:", str(e))
+            session['message'] = 'Signup failed'
+
     return render_template('index.html')
 
 
