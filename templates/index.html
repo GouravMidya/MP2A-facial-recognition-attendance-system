@@ -1,39 +1,53 @@
 <!DOCTYPE html>
-<html>
-
-  <head>
-    <link rel="stylesheet" href="static/css/style.css">
-  </head>
-
-  <body>    
-
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
     <div class="header">
-      <h1>Welcome to the Organization's Facial Recognition Attendance System</h1>
+        <a href="/">Attendify</a>
     </div>
-    <div class="container">
-      <div class="card">
-        <h2>Efficient Attendance Management</h2>
-        <p>Our advanced facial recognition technology simplifies attendance tracking for your organization.</p>
-        <div>
-          <a href="signup"><button style="width:20%;">Signup</button></a>
-          <a href="login"><button style="width:20%;">Login</button></a>
+    <div class="desc">
+        Attendance for your 
+        <div class="changing" id="changing">
+            Business and Workplace
         </div>
-      </div>
-      <div class="card">
-        <h2>About the System</h2>
-        <p>Our system leverages cutting-edge facial recognition to streamline attendance recording, providing accurate and efficient tracking for your workforce.</p>
-      </div>
-      <div class="card">
-        <h2>Contact Us</h2>
-        <p>If you have any inquiries or require assistance, our dedicated support team is ready to help.</p>
-      </div>
+        <div class="description">
+            Transform attendance tracking using our precise, efficient, and secure facial recognition system. Simplify attendance management for businesses and institutions seamlessly.
+        </div>
     </div>
-    <div class="footer">
-      <p>&copy; 2023 Organization's Facial Recognition Attendance System. All rights reserved.</p>
+
+
+    <div class="login-container">
+        <h1 class="login-head">Login</h1>
+        <!-- Login form and content goes here -->
+        <form method="POST" >
+            <!-- Login form fields -->
+            <input type="text" placeholder="Username" name="username" id="text-box">
+            <input type="password" placeholder="Password" name="password" id="text-box">
+            <button type="submit" id="login-button">Login</button>
+        </form>
+        <p>Dont have an account?<a href="#" id="signup-link">Sign Up</a></p>
     </div>
-  
 
-  </body>
+    <div class="signup-container">
+        <h2>Sign Up</h2>
+        <!-- Sign-up form and content goes here -->
+        <form>
+            <!-- Sign-up form fields -->
+            <input type="text" placeholder="Full Name" name="fullname" id="text-box">
+            <input type="email" placeholder="Email" name="email" id="text-box">
+            <input type="password" placeholder="Password" name="password" id="text-box">
+            <button type="submit" id="signup-button">Sign Up</button>
+        </form>
+        <p><a href="#" id="login-link">Login</a></p>
+    </div>
 
 
+
+    <script src="static/index_script.js"></script>
+</body>
 </html>

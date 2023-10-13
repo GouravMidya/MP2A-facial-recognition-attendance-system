@@ -1,22 +1,23 @@
 import mysql.connector
 
 # Connect to MySQL (ensure MySQL server is running)
-'''db_connection = mysql.connector.connect(
+db_connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="root"
+    password="20032003"
 )
 
 # Create a database named 'attendify' if it doesn't exist
 db_cursor = db_connection.cursor()
+db_cursor.execute("DROP DATABASE IF EXISTS attendify")
 db_cursor.execute("CREATE DATABASE IF NOT EXISTS attendify")
-db_cursor.close()'''
+db_cursor.close()
 
 # Connect to the 'attendify' database
 db_connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="root",
+    password="20032003",
     database="attendify"
 )
 
@@ -27,9 +28,19 @@ db_cursor = db_connection.cursor()
 db_cursor.execute("""
     CREATE TABLE IF NOT EXISTS Teachers (
         TeacherID INT AUTO_INCREMENT PRIMARY KEY,
-        FullName VARCHAR(255) NOT NULL,
+        FirstName VARCHAR(255) NOT NULL,
+        MiddleName VARCHAR(255),
+        LastName VARCHAR(255) NOT NULL,
         Email VARCHAR(255) NOT NULL UNIQUE,
         Password VARCHAR(255) NOT NULL
+    )
+""")
+
+
+db_cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Subjects (
+        SubjectID varchar(10) PRIMARY KEY,
+        Subject_name varchar(100) NOT NULL
     )
 """)
 
@@ -37,7 +48,9 @@ db_cursor.execute("""
 db_cursor.execute("""
     CREATE TABLE IF NOT EXISTS Admins (
         AdminID INT AUTO_INCREMENT PRIMARY KEY,
-        FullName VARCHAR(255) NOT NULL,
+        FirstName VARCHAR(255) NOT NULL,
+        MiddleName VARCHAR(255),
+        LastName VARCHAR(255) NOT NULL,
         Email VARCHAR(255) NOT NULL UNIQUE,
         Password VARCHAR(255) NOT NULL
     )
@@ -61,6 +74,8 @@ db_cursor.execute("""
         AssignmentID INT AUTO_INCREMENT PRIMARY KEY,
         TeacherID INT,
         ClassroomID INT,
+        SubjectID varchar(10),
+        FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID)
         FOREIGN KEY (TeacherID) REFERENCES Teachers(TeacherID),
         FOREIGN KEY (ClassroomID) REFERENCES Classrooms(ClassroomID)
     )
@@ -70,11 +85,14 @@ db_cursor.execute("""
 db_cursor.execute("""
     CREATE TABLE IF NOT EXISTS Students (
         StudentID INT AUTO_INCREMENT PRIMARY KEY,
-        FullName VARCHAR(255) NOT NULL,
+        FirstName VARCHAR(255) NOT NULL,
+        MiddleName VARCHAR(255),
+        LastName VARCHAR(255) NOT NULL,
         Email VARCHAR(255),
         RollNo INT,
-        PersonalDetails TEXT,
-        StudentImage VARCHAR(255)
+        StudentImage VARCHAR(255),
+        ClassroomID INT,
+        FOREIGN KEY (ClassroomID) REFERENCES Classrooms(ClassroomID)
     )
 """)
 
