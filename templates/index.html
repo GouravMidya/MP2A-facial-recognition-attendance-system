@@ -21,22 +21,22 @@
     </div>
 
 
-    <div class="login-container">
+    <div class="login-container" id="login-container">
         <h1 class="login-head">Login</h1>
-        <!-- Login form and content goes here -->
-        <form method="POST" >
+        <!-- Login form and content go here -->
+        <form method="POST" action="{{ url_for('index') }}">
             <!-- Login form fields -->
             <input type="text" placeholder="Username" name="username" id="text-box">
             <input type="password" placeholder="Password" name="password" id="text-box">
             <button type="submit" id="login-button">Login</button>
         </form>
-        <p>Dont have an account?<a href="#" id="signup-link">Sign Up</a></p>
+        <p>Don't have an account?<a href="#" id="signup-link">Sign Up</a></p>
     </div>
-
-    <div class="signup-container">
+    
+    <div class="signup-container" id="signup-container">
         <h2>Sign Up</h2>
-        <!-- Sign-up form and content goes here -->
-        <form>
+        <!-- Sign-up form and content go here -->
+        <form method="POST" action="{{ url_for('signup') }}">
             <!-- Sign-up form fields -->
             <input type="text" placeholder="Full Name" name="fullname" id="text-box">
             <input type="email" placeholder="Email" name="email" id="text-box">
@@ -45,6 +45,7 @@
         </form>
         <p><a href="#" id="login-link">Login</a></p>
     </div>
+    
 
 
 
