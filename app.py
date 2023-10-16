@@ -1,5 +1,6 @@
 from flask import Flask, render_template, Response, json, render_template, request, flash, redirect, url_for,session, jsonify
 import cv2
+import csv
 import face_recognition
 from multiprocessing import Process, Queue, Pipe
 import os
@@ -10,6 +11,7 @@ from flask_socketio import SocketIO, emit
 import base64
 import numpy as np
 from PIL import Image
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -33,6 +35,14 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Ensure the "facedb" folder exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Excel Sheet :
+
+now= datetime.now()
+current_date=now.strftime("%Y-%m-%d")
+
+f= open(current_date+'.csv','w+',newline='')
+lnwriter = csv.writer(f)
 
 
 # Fetch classroom data from the database
@@ -95,9 +105,13 @@ def generate_frames():
                     else:
                         elapsed_time = time.time() - presence_timers[name]['start_time']
 
-                        if elapsed_time >= 10:
+                        if elapsed_time >= 5:
                             # Here you can perform any action to mark the person as present
                             present.append(name)
+                            current_time = now.strftime("%H-%M-%S")
+                            lnwriter.writerow([name, current_time])
+                            f.flush()  # Flush the buffer to ensure the data is written immediately
+                            os.fsync(f.fileno())  # Ensure the data is written to disk
                             del reference_encodings[name]
                             presence_timers[name]['start_time'] = time.time()
                             presence_timers[name]['duration'] = 0
@@ -118,7 +132,9 @@ def generate_frames():
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
 
+            # Send the updated present list to the client
             socketio.emit('update_present', {'present': present})
+
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
@@ -286,57 +302,59 @@ def video_feed():
 def handle_update_present_request():
     emit('update_present', {'present': present})
 
-
 @app.route('/save-image', methods=['POST'])
 def save_image():
-    data = request.get_json()
-    image_data = data.get('imageData')
+    try:
+        data = request.get_json()
+        image_data = data.get('imageData')
 
-    # Process the face and save only the face
-    save_face_from_base64(image_data)
+        # Process the face and save only the face
+        save_face_from_base64(image_data)
 
-    return jsonify({'status': 'success'})
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        print('Error saving image:', str(e))
+        return jsonify({'status': 'error'})
 
 def save_face_from_base64(image_data):
-    # Decode the base64 image data
-    image_data_decoded = base64.b64decode(image_data.split(',')[1])
+    try:
+        # Decode the base64 image data
+        image_data_decoded = base64.b64decode(image_data.split(',')[1])
 
-    # Convert the bytes to a numpy array
-    nparr = np.frombuffer(image_data_decoded, np.uint8)
+        # Convert the bytes to a numpy array
+        nparr = np.frombuffer(image_data_decoded, np.uint8)
 
-    # Decode the image using OpenCV
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        # Decode the image using OpenCV
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-    # Load the image using face_recognition
-    image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # Load the image using face_recognition
+        image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-    # Find face locations in the image
-    face_locations = face_recognition.face_locations(image)
+        # Find face locations in the image
+        face_locations = face_recognition.face_locations(image)
 
-    if len(face_locations) > 0:
-        # Extract the first face found (you may want to handle multiple faces differently)
-        top, right, bottom, left = face_locations[0]
-        face_image = image[top:bottom, left:right]
+        if len(face_locations) > 0:
+            # Extract the first face found (you may want to handle multiple faces differently)
+            top, right, bottom, left = face_locations[0]
+            face_image = image[top:bottom, left:right]
 
-        # Preserve the aspect ratio while cropping the face
-        aspect_ratio = face_image.shape[1] / face_image.shape[0]
-        target_height = 100  # Adjust this value based on your preference
-        target_width = int(target_height * aspect_ratio)
+            # Preserve the aspect ratio while cropping the face
+            aspect_ratio = face_image.shape[1] / face_image.shape[0]
+            target_height = 100  # Adjust this value based on your preference
+            target_width = int(target_height * aspect_ratio)
 
-        # Resize the face image to the target dimensions
-        face_image = cv2.resize(face_image, (target_width, target_height))
+            # Resize the face image to the target dimensions
+            face_image = cv2.resize(face_image, (target_width, target_height))
 
-        # Save the face image
-        face_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'face_only.png')
-        face_image_pil = Image.fromarray(face_image)
-        face_image_pil.save(face_filename)
-        print('Face saved:', face_filename)
-    else:
-        print('No face detected.')
-
+            # Save the face image
+            face_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'face_only.png')
+            face_image_pil = Image.fromarray(face_image)
+            face_image_pil.save(face_filename)
+            print('Face saved:', face_filename)
+        else:
+            print('No face detected.')
+    except Exception as e:
+        print('Error processing face:', str(e))
 
 if __name__ == "__main__":
-    # ... (existing code)
-
-    # Start Flask and SocketIO
-    socketio.run(app, debug=True)
+    app.run(debug=True)
