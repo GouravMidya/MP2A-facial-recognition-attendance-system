@@ -37,13 +37,11 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Excel Sheet :
-
 now= datetime.now()
 current_date=now.strftime("%Y-%m-%d")
-
 f= open(current_date+'.csv','w+',newline='')
 lnwriter = csv.writer(f)
-
+excel_filename=current_date+'.csv'
 
 # Fetch classroom data from the database
 def get_classrooms():
@@ -355,6 +353,20 @@ def save_face_from_base64(image_data):
             print('No face detected.')
     except Exception as e:
         print('Error processing face:', str(e))
+
+
+@app.route('/attendance_summary')
+def attendance_summary():
+    # Read data from the CSV file
+    attendance_data = []
+    with open(excel_filename, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            attendance_data.append(row)
+
+    # Pass the data to the template
+    return render_template('attendance_summary.html', attendance_data=attendance_data)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -117,7 +117,7 @@
     <div id="takeattendance-container" style="display: none;">
         <h1 id="takeattendance-header">Take Attendance</h1>
         <div class="takeattendance-box">
-            <form id="attendance-form2">
+            <form id="attendance-form2" action="{{ url_for('attendance_summary',)}}" method="get">
                 <label for="classroom2">Select Classroom:</label>
                 <select id="classroom2" name="classroom">
                     <option value="classroom1">Classroom 1</option>
@@ -148,7 +148,6 @@
                     <option value="" >17:00-18:00</option>
                 </select>
 
-                <button type="submit" id="camera-button">Start Camera</button>
                 <button type="submit" id="camera-button">Stop Camera</button>
             </form>
             <!-- In your dashboard.html file -->
