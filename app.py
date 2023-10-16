@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, json, render_template, request, flash, redirect, url_for,session
+from flask import Flask, render_template, Response, json, render_template, request, flash, redirect, url_for,session, jsonify
 import cv2
 import face_recognition
 from multiprocessing import Process, Queue, Pipe
@@ -7,6 +7,9 @@ import time
 import multiprocessing
 import mysql.connector
 from flask_socketio import SocketIO, emit
+import base64
+import numpy as np
+from PIL import Image
 
 
 app = Flask(__name__)
@@ -23,6 +26,14 @@ db_connection = mysql.connector.connect(
 )
 
 db_cursor = db_connection.cursor()
+
+
+UPLOAD_FOLDER = 'facedb'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the "facedb" folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 
 # Fetch classroom data from the database
 def get_classrooms():
@@ -240,9 +251,21 @@ def dashboard():
     # Retrieve TeacherID from the session
     teacher_id = session.get('teacher_id', None)
     teacher_name = session.get('teacher_name',None)
+
+    if request.method == 'POST':
+        # Handle student form submission
+        student_name = request.form['studentName']
+        student_email = request.form['studentEmail']
+        student_roll_number = request.form['studentRollNumber']
+        classroom_id = request.form['classroom']
+
+        # Save the student details to the database
+        db_cursor.execute("INSERT INTO Students (FullName, Email  , RollNo) VALUES (%s, %s, %s, %s)",(student_name, student_email, student_roll_number, classroom_id))
+        db_connection.commit()
+
+
     # Fetch classroom data
     classrooms = get_classrooms()
-    print(classrooms)
     # Pass the success message and TeacherID to the template
     #return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id,teacher_name=teacher_name,classrooms_json=json.dumps(classrooms))
     
@@ -262,6 +285,55 @@ def video_feed():
 @socketio.on('update_present_request')
 def handle_update_present_request():
     emit('update_present', {'present': present})
+
+
+@app.route('/save-image', methods=['POST'])
+def save_image():
+    data = request.get_json()
+    image_data = data.get('imageData')
+
+    # Process the face and save only the face
+    save_face_from_base64(image_data)
+
+    return jsonify({'status': 'success'})
+
+def save_face_from_base64(image_data):
+    # Decode the base64 image data
+    image_data_decoded = base64.b64decode(image_data.split(',')[1])
+
+    # Convert the bytes to a numpy array
+    nparr = np.frombuffer(image_data_decoded, np.uint8)
+
+    # Decode the image using OpenCV
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    # Load the image using face_recognition
+    image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    # Find face locations in the image
+    face_locations = face_recognition.face_locations(image)
+
+    if len(face_locations) > 0:
+        # Extract the first face found (you may want to handle multiple faces differently)
+        top, right, bottom, left = face_locations[0]
+        face_image = image[top:bottom, left:right]
+
+        # Preserve the aspect ratio while cropping the face
+        aspect_ratio = face_image.shape[1] / face_image.shape[0]
+        target_height = 100  # Adjust this value based on your preference
+        target_width = int(target_height * aspect_ratio)
+
+        # Resize the face image to the target dimensions
+        face_image = cv2.resize(face_image, (target_width, target_height))
+
+        # Save the face image
+        face_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'face_only.png')
+        face_image_pil = Image.fromarray(face_image)
+        face_image_pil.save(face_filename)
+        print('Face saved:', face_filename)
+    else:
+        print('No face detected.')
+
 
 if __name__ == "__main__":
     # ... (existing code)
