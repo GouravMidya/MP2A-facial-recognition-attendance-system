@@ -12,7 +12,7 @@ import base64
 import numpy as np
 from PIL import Image
 from datetime import datetime
-
+#testing if i have access
 
 app = Flask(__name__)
 socketio = SocketIO(app)
