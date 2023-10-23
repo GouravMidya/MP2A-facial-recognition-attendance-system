@@ -259,8 +259,23 @@ def signup():
 
     return render_template('index.html')
 
+def submit_student():
+    if request.method == 'POST':
+        student_name = request.form.get('studentName')
+        student_email = request.form.get('studentEmail')
+        student_roll_number = request.form.get('studentRollNumber')
 
-@app.route('/dashboard')
+        # Insert the student data into the database
+        db_cursor.execute("INSERT INTO Students (FullName, Email, RollNo) VALUES (%s, %s, %s)",
+                           (student_name, student_email, student_roll_number))
+        db_connection.commit()
+
+        # You can add any additional logic or redirects here
+
+        return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
+
+
+@app.route('/dashboard',  methods=['GET', 'POST'])
 def dashboard():
     # Retrieve TeacherID from the session
     teacher_id = session.get('teacher_id', None)
@@ -269,12 +284,11 @@ def dashboard():
     if request.method == 'POST':
         # Handle student form submission
         student_name = request.form['studentName']
+        print(student_name)
         student_email = request.form['studentEmail']
         student_roll_number = request.form['studentRollNumber']
-        classroom_id = request.form['classroom']
-
         # Save the student details to the database
-        db_cursor.execute("INSERT INTO Students (FullName, Email  , RollNo) VALUES (%s, %s, %s, %s)",(student_name, student_email, student_roll_number, classroom_id))
+        db_cursor.execute("INSERT INTO Students (FullName, Email  , RollNo) VALUES (%s, %s, %s, %s)",(student_name, student_email, student_roll_number))
         db_connection.commit()
 
 
@@ -287,8 +301,7 @@ def dashboard():
     video_feed = url_for('video_feed')
 
     return render_template('dashboard.html', message=session.pop('message', ''),
-                           teacher_id=teacher_id, teacher_name=teacher_name,
-                           classrooms_json=json.dumps(classrooms), video_feed=video_feed, present=present)
+                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present)
 
 
 # In your Flask application
@@ -366,6 +379,10 @@ def attendance_summary():
 
     # Pass the data to the template
     return render_template('attendance_summary.html', attendance_data=attendance_data)
+
+@app.route('/submit-student', methods=['POST'])
+def submit_student_route():
+    return submit_student()
 
 
 if __name__ == "__main__":

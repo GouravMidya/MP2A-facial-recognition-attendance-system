@@ -173,7 +173,7 @@
     <div id="addStudentContent" style="display: none;">
         <div id="addStudentContentP1" style="display: block;">
             <h2 id="addStudentHeader">Add Student</h2>
-            <form id="studentForm">
+            <form id="studentForm" novalidate action="/submit-student" method="post">
                 <table id="addstudentinfo" border="1">
                     <tr>
                         <td><label for="studentName">Student Name:</label></td>
@@ -187,21 +187,8 @@
                         <td><label for="studentRollNumber">Roll Number:</label></td>
                         <td colspan="2"><input type="text" id="studentRollNumber" name="studentRollNumber" required></td>
                     </tr>
-                    <tr>
-                        <td><label for="classroom">Classroom ID:</label></td>
-                        <td><input type="text" id="classroomSearch" placeholder="Search Classroom"></td>
-                        <td><select id="classroom" name="classroom" required>
-                            <option value="">Select Classroom</option>
-                            <option value="classroom1">Comps T.E. B</option>
-                            <option value="classroom2">IT B.E. A</option>
-                            <option value="classroom3">Classroom 3</option>
-                            <!-- Add more options as needed -->
-                        </select>
-                        </td>
-                    </tr>
                 </table>    
                         <div>
-                            <button type="button" id="nextButton">Next</button>
                             <button type="submit" id="submitButton">Submit</button>
                         </div>
             </form>
