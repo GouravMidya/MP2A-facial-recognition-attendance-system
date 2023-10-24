@@ -1,27 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Summary</title>
+    <title>Attendance Page</title>
 </head>
 <body>
-    <h1>Attendance Summary</h1>
-
-    <table border="1">
+    <h1>Attendance Data</h1>
+    <table>
         <tr>
             <th>StudentID</th>
             <th>Name</th>
             <th>Email</th>
             <th>Status</th>
         </tr>
-        {% for row in attendance_data %}
-            <tr>
-                <td>{{ row[0] }}</td>
-                <td>{{ row[1] }}</td>
-                <td>{{ row[2] }}</td>
-                <td>{{ row[4] }}</td>
-            </tr>
+        {% for record in attendance_data %}
+        <tr>
+            <td>{{ record[0] }}</td>
+            <td>{{ record[1] }}</td>
+            <td>{{ record[2] }}</td>
+            <td>{{ record[3] }}</td>
+        </tr>
         {% endfor %}
     </table>
 </body>

@@ -406,7 +406,42 @@ def attendance_summary():
         for row in reader:
             attendance_data.append(row)
 
-    # Pass the data to the template
+    
+
+    # Student Data for Attendance report
+    # Fetch student data from the database
+    sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
+    db_cursor.execute(sql_query)
+    student_data = db_cursor.fetchall()
+
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    csv_filename = f"{current_date}.csv"
+    csv_header = ["StudentID", "Name", "Email", "Status"]
+
+    for student_record in student_data:
+        student_id = student_record[0]
+        student_name = student_record[1]
+        student_email = student_record[2]
+        image_name = student_record[3]
+        if image_name in present:
+            status = 'P'  # Mark the student as present
+        else:
+            status = 'A'  # Mark the student as absent
+            # Open the existing CSV file in append mode
+        with open(csv_filename, 'a', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            student_with_status = [student_id, student_name, student_email, status]
+            csv_writer.writerow(student_with_status)
+            csvfile.flush()  # Flush the buffer to ensure the data is written immediately
+            os.fsync(csvfile.fileno())  # Ensure the data is written to disk
+
+    # Read data from the updated CSV file
+    attendance_data = []
+    with open(csv_filename, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            attendance_data.append(row)
+
     return render_template('attendance_summary.html', attendance_data=attendance_data)
 
 
@@ -417,38 +452,3 @@ def submit_student_route():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-# Student Data for Attendance report
-sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
-# Execute the SQL query and fetch student data
-db_cursor = db_connection.cursor()
-db_cursor.execute(sql_query)
-student_data = db_cursor.fetchall()
-
-current_date = datetime.now().strftime("%Y-%m-%d")
-csv_filename = f"{current_date}.csv"
-csv_header = ["StudentID", "Name", "Email", "Status"]
-
-try:
-    # Open the existing CSV file in append mode
-    with open(csv_filename, 'a', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile)
-
-        # Append the new student data with 'A' status
-        for student in student_data:
-            student_with_status = list(student) + ['A']
-            csv_writer.writerow(student_with_status)
-except FileNotFoundError:
-    # If the file doesn't exist, create a new one and write the header row
-    with open(csv_filename, 'w', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile)
-
-        # Write the header row
-        csv_writer.writerow(csv_header)
-
-        # Write the data for each student with 'A' status
-        for student in student_data:
-            student_with_status = list(student) + ['A']
-            csv_writer.writerow(student_with_status)
-
