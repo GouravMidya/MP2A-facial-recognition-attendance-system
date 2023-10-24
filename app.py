@@ -54,11 +54,15 @@ camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 camera.set(cv2.CAP_PROP_FPS, 30)
 
+# Declared Variables
 facedb_path = 'facedb'
 reference_encodings = {}
 present = []
-# Maintain a dictionary to track the presence of individuals and their timers
-presence_timers = {}
+presence_timers = {} # Maintain a dictionary to track the presence of individuals and their timers
+global student_name
+global student_email
+global student_roll_number 
+
 
 
 def is_image_file(file_path):
@@ -265,6 +269,12 @@ def submit_student():
         student_email = request.form.get('studentEmail')
         student_roll_number = request.form.get('studentRollNumber')
 
+        session['student_name'] = student_name
+        session['student_email'] = student_email
+
+        # Get the uploaded image data
+        student_image = request.form.get('studentImage')  # This assumes that the image data is sent as part of the form data
+
         # Insert the student data into the database
         db_cursor.execute("INSERT INTO Students (FullName, Email, RollNo) VALUES (%s, %s, %s)",
                            (student_name, student_email, student_roll_number))
@@ -273,6 +283,9 @@ def submit_student():
         # You can add any additional logic or redirects here
 
         return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
+
+    # Handle GET request or any other cases
+    return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
 
 
 @app.route('/dashboard',  methods=['GET', 'POST'])
@@ -329,7 +342,14 @@ def save_image():
 
 def save_face_from_base64(image_data):
     try:
-        # Decode the base64 image data
+        student_name = session.get('student_name')
+        student_email = session.get('student_email')
+
+        if not student_name or not student_email:
+            # Handle the case where student_name and student_email are not available
+            print('Missing student_name or student_email in the session')
+            return
+       # Decode the base64 image data
         image_data_decoded = base64.b64decode(image_data.split(',')[1])
 
         # Convert the bytes to a numpy array
@@ -357,8 +377,11 @@ def save_face_from_base64(image_data):
             # Resize the face image to the target dimensions
             face_image = cv2.resize(face_image, (target_width, target_height))
 
+            #Get data from db
+            db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", ( student_email,student_name))
+            id = db_cursor.fetchone()
             # Save the face image
-            face_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'face_only.png')
+            face_filename = os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id[0]}.png")
             face_image_pil = Image.fromarray(face_image)
             face_image_pil.save(face_filename)
             print('Face saved:', face_filename)

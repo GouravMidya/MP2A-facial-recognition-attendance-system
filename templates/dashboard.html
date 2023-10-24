@@ -173,7 +173,7 @@
     <div id="addStudentContent" style="display: none;">
         <div id="addStudentContentP1" style="display: block;">
             <h2 id="addStudentHeader">Add Student</h2>
-            <form id="studentForm" novalidate action="/submit-student" method="post">
+            <form id="studentForm" action="/submit-student" method="post">
                 <table id="addstudentinfo" border="1">
                     <tr>
                         <td><label for="studentName">Student Name:</label></td>
@@ -189,7 +189,7 @@
                     </tr>
                 </table>    
                         <div>
-                            <button type="submit" id="submitButton">Submit</button>
+                            <button type="button" id="nextButton" onclick="submitFormAndShowP2()">Next</button>
                         </div>
             </form>
         </div>

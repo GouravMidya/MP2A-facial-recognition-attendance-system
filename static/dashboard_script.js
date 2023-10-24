@@ -238,3 +238,48 @@ function deleteNote(noteId) {
 
     // Request an initial update when the page loads
     socket.emit('update_present_request');
+
+
+    //Submit and next page
+    
+    // JavaScript function to submit the form and show P2
+function submitFormAndShowP2() {
+    const studentName = document.getElementById("studentName").value;
+    const studentEmail = document.getElementById("studentEmail").value;
+    const studentRollNumber = document.getElementById("studentRollNumber").value;
+
+    // Check if required fields are filled
+    if (!studentName || !studentEmail || !studentRollNumber) {
+        alert("Please fill in all required fields.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("studentName", studentName);
+    formData.append("studentEmail", studentEmail);
+    formData.append("studentRollNumber", studentRollNumber);
+
+    // Send the form data to the server using AJAX
+    fetch('/submit-student', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display a success alert
+        alert("Student added successfully!");
+
+        // Clear the form
+        document.getElementById("studentName").value = "";
+        document.getElementById("studentEmail").value = "";
+        document.getElementById("studentRollNumber").value = "";
+
+        // Switch to the second part of the "Add Student" content (addStudentContentP2)
+        addStudentContentP1.style.display = "none";
+        addStudentContentP2.style.display = "block";
+    })
+    .catch(error => {
+        alert("An error occurred while submitting the form.");
+        console.error("Error:", error);
+    });
+}
