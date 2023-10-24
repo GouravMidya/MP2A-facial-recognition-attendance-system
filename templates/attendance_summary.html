@@ -10,13 +10,17 @@
 
     <table border="1">
         <tr>
-            <th>Student Name</th>
-            <th>Time</th>
+            <th>StudentID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
         </tr>
         {% for row in attendance_data %}
             <tr>
                 <td>{{ row[0] }}</td>
                 <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[4] }}</td>
             </tr>
         {% endfor %}
     </table>

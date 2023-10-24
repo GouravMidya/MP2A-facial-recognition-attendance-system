@@ -12,6 +12,7 @@ import base64
 import numpy as np
 from PIL import Image
 from datetime import datetime
+import pandas as pd
 #testing if i have access
 
 app = Flask(__name__)
@@ -108,10 +109,8 @@ def generate_frames():
                         elapsed_time = time.time() - presence_timers[name]['start_time']
 
                         if elapsed_time >= 5:
-                            # Here you can perform any action to mark the person as present
                             present.append(name)
-                            current_time = now.strftime("%H-%M-%S")
-                            lnwriter.writerow([name, current_time])
+                            
                             f.flush()  # Flush the buffer to ensure the data is written immediately
                             os.fsync(f.fileno())  # Ensure the data is written to disk
                             del reference_encodings[name]
@@ -349,7 +348,7 @@ def save_face_from_base64(image_data):
             # Handle the case where student_name and student_email are not available
             print('Missing student_name or student_email in the session')
             return
-       # Decode the base64 image data
+        # Decode the base64 image data
         image_data_decoded = base64.b64decode(image_data.split(',')[1])
 
         # Convert the bytes to a numpy array
@@ -380,6 +379,12 @@ def save_face_from_base64(image_data):
             #Get data from db
             db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", ( student_email,student_name))
             id = db_cursor.fetchone()
+
+            # Update the "image_name" field
+            image_name = f"{student_name}_{id[0]}"
+            db_cursor.execute("UPDATE Students SET image_name = %s WHERE StudentID = %s", (image_name, id[0]))
+            db_connection.commit()
+
             # Save the face image
             face_filename = os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id[0]}.png")
             face_image_pil = Image.fromarray(face_image)
@@ -389,6 +394,7 @@ def save_face_from_base64(image_data):
             print('No face detected.')
     except Exception as e:
         print('Error processing face:', str(e))
+
 
 
 @app.route('/attendance_summary')
@@ -403,6 +409,7 @@ def attendance_summary():
     # Pass the data to the template
     return render_template('attendance_summary.html', attendance_data=attendance_data)
 
+
 @app.route('/submit-student', methods=['POST'])
 def submit_student_route():
     return submit_student()
@@ -410,3 +417,38 @@ def submit_student_route():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+# Student Data for Attendance report
+sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
+# Execute the SQL query and fetch student data
+db_cursor = db_connection.cursor()
+db_cursor.execute(sql_query)
+student_data = db_cursor.fetchall()
+
+current_date = datetime.now().strftime("%Y-%m-%d")
+csv_filename = f"{current_date}.csv"
+csv_header = ["StudentID", "Name", "Email", "Status"]
+
+try:
+    # Open the existing CSV file in append mode
+    with open(csv_filename, 'a', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+
+        # Append the new student data with 'A' status
+        for student in student_data:
+            student_with_status = list(student) + ['A']
+            csv_writer.writerow(student_with_status)
+except FileNotFoundError:
+    # If the file doesn't exist, create a new one and write the header row
+    with open(csv_filename, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+
+        # Write the header row
+        csv_writer.writerow(csv_header)
+
+        # Write the data for each student with 'A' status
+        for student in student_data:
+            student_with_status = list(student) + ['A']
+            csv_writer.writerow(student_with_status)
+
