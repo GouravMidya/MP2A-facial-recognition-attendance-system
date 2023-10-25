@@ -118,15 +118,7 @@
     <div id="takeattendance-container" style="display: none;">
         <h1 id="takeattendance-header">Take Attendance</h1>
         <div class="takeattendance-box">
-            <form id="attendance-form2" action="{{ url_for('attendance_summary',)}}" method="get">
-                <label for="subject2" style="margin-left: 5%;">Select Subject:</label>
-                <select id="subject2" name="subject">
-                    <option value="subject1">Subject 1</option>
-                    <option value="subject2" >Subject 2</option>
-                    <!-- Add more subject options here -->
-                </select>
-                <button type="submit" id="camera-button">Stop Camera</button>
-            </form>
+            
             <!-- In your dashboard.html file -->
             <!-- In your dashboard.html file -->
             <div id="camera-feed" style="margin-right: -50px;">
@@ -134,7 +126,7 @@
             </div>
 
 
-            <div id="attendance-text" style="margin-top: -80px ; margin-left: -150px;">
+            <div id="attendance-text" style="margin-top: -40%;margin-left: 73%;">
                 <h2>Present Students:</h2>
                 <textarea name="attendance-record" id="attendance-record" cols="25" rows="15">
                     <div>
@@ -144,8 +136,12 @@
                     </div>
                 </textarea>
             </div>
+            <form id="attendance-form2" action="{{ url_for('attendance_summary',)}}" method="get">
+                <button type="submit" id="camera-button" style="margin-left: 77%; margin-top: 3%;">Stop Camera</button>
+            </form>
         </div>
     </div>
+
 
     <div id="addStudentContent" style="display: none;">
         <div id="addStudentContentP1" style="display: block;">

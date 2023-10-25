@@ -50,13 +50,6 @@ def get_classrooms():
     classrooms = db_cursor.fetchall()
     return classrooms
 
-
-#Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
-camera = cv2.VideoCapture(0)
-camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-camera.set(cv2.CAP_PROP_FPS, 30)
-
 # Declared Variables
 facedb_path = 'facedb'
 reference_encodings = {}
@@ -91,6 +84,11 @@ presence_timers = {}
 def generate_frames():
     global present
 
+    #Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
+    camera = cv2.VideoCapture(0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+    camera.set(cv2.CAP_PROP_FPS, 30)
     while True:
         success, frame = camera.read()
         if not success:
@@ -174,6 +172,12 @@ def recognize_face(frame):
 
 
 def face_recognition_worker(fi, fl):
+
+    #Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
+    camera = cv2.VideoCapture(0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+    camera.set(cv2.CAP_PROP_FPS, 30)
     while True:
         # Get the small frame from the input queue.
         small_frame = fi.get()
@@ -197,6 +201,11 @@ if __name__ == "__main__":
     # Set the start method for multiprocessing to 'spawn'.
     multiprocessing.set_start_method('spawn')
     
+    #Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
+    camera = cv2.VideoCapture(0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+    camera.set(cv2.CAP_PROP_FPS, 30)
     video_input = 0
 
     num_processes = 2  # Set the number of processes
