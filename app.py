@@ -50,6 +50,8 @@ def get_classrooms():
     classrooms = db_cursor.fetchall()
     return classrooms
 
+
+#Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
 camera = cv2.VideoCapture(0)
 camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
@@ -65,12 +67,13 @@ global student_email
 global student_data
 
 
-
+#checks if a given file path represents an image file
 def is_image_file(file_path):
     image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
     return any(file_path.lower().endswith(ext) for ext in image_extensions)
 
 
+#loads reference images for face recognition by iterating through files
 def load_reference_images():
     for root, dirs, files in os.walk(facedb_path):
         for file in files:
@@ -98,6 +101,7 @@ def generate_frames():
             # Initialize a dictionary to keep track of faces in the current frame
             current_frame_faces = {}
 
+            #If there is a face match in current frame with reference images then show that there is a match to user
             if is_match:
                 text = f"MATCH ({', '.join(matched_names)})"
                 cv2.putText(frame, text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -108,6 +112,7 @@ def generate_frames():
                     else:
                         elapsed_time = time.time() - presence_timers[name]['start_time']
 
+                        #Once a match lasts for 5 seconds the face is considered present and removed from reference images
                         if elapsed_time >= 5:
                             present.append(name)
                             
@@ -133,91 +138,130 @@ def generate_frames():
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
 
-            # Send the updated present list to the client
+            # Send the updated present list to the client to display in textarea
             socketio.emit('update_present', {'present': present})
 
+
+            #Creating a multipart HTTP response to stream JPEG frames with frame delimiters and content type headers.
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
 def recognize_face(frame):
+    # Find face locations in the frame using the HOG model.
     face_locations = face_recognition.face_locations(frame, model="hog")
+    
+    # If no face locations are found, return no recognition.
     if not face_locations:
         return False, []
 
+    # Extract face encodings for the located faces.
     face_encodings = face_recognition.face_encodings(frame, face_locations)
     recognized_names = []
 
+    # Compare the face encodings to reference encodings to recognize faces.
     for encoding in face_encodings:
         for name, reference_encoding in reference_encodings.items():
             result = face_recognition.compare_faces([reference_encoding], encoding)
+            
+            # If a match is found, add the recognized name to the list.
             if result[0]:
                 recognized_names.append(name)
 
+    # Return True if any faces were recognized and the recognized names.
     return bool(recognized_names), recognized_names
+
 
 
 def face_recognition_worker(fi, fl):
     while True:
+        # Get the small frame from the input queue.
         small_frame = fi.get()
         print("Running face recognition process")
+
+        # Detect face locations in the small frame using the HOG model.
         face_locations = face_recognition.face_locations(small_frame, model="hog")
 
+        # If any face locations are found, process and send them.
         if len(face_locations) > 0:
             print(face_locations)
             for (top7, right7, bottom7, left7) in face_locations:
+                # Extract the face region from the small frame.
                 small_frame_c = small_frame[top7:bottom7, left7:right7]
+
+                 # Send the cropped face region to the output queue.
                 fl.send(small_frame_c)
 
 
 if __name__ == "__main__":
-        multiprocessing.set_start_method('spawn')
-        video_input = 0
+    # Set the start method for multiprocessing to 'spawn'.
+    multiprocessing.set_start_method('spawn')
+    
+    video_input = 0
 
-        num_processes = 2  # Set the number of processes
+    num_processes = 2  # Set the number of processes
 
-        #with Process() as face_recognition_process:
-        fi = Queue(maxsize=14)
-        parent_p, child_p = Pipe()
+    # Create a queue for passing frames to worker processes.
+    fi = Queue(maxsize=14)
+    
+    # Create a parent-child Pipe for communication with worker processes.
+    parent_p, child_p = Pipe()
 
-        processes = []
-        for _ in range(num_processes):
-            process = Process(target=face_recognition_worker, args=(fi, child_p))
-            process.start()
-            processes.append(process)
+    processes = []
 
-        app.run(debug=True, threaded=True)
+    # Start worker processes for face recognition.
+    for _ in range(num_processes):
+        process = Process(target=face_recognition_worker, args=(fi, child_p))
+        process.start()
+        processes.append(process)
 
-        frame_id = 0
-        fps_var = 0
+    # Start the application (e.g., a web-based video stream).
+    app.run(debug=True, threaded=True)
 
-        while True:
-            ret, frame = camera.read()
-            effheight, effwidth = frame.shape[:2]
-            if effwidth < 20:
-                break
+    frame_id = 0  # Initialize the frame ID counter.
+    fps_var = 0  # Initialize the FPS variable.
 
-            xxx = 930
-            yyy = 10/16
-            small_frame = cv2.resize(frame, (xxx, int(xxx*yyy)))
+    while True:
+        ret, frame = camera.read()  # Read a frame from the camera.
 
-            if frame_id % 2 == 0:
-                if not fi.full():
-                    fi.put(small_frame)
+        effheight, effwidth = frame.shape[:2]  # Get the height and width of the frame.
 
-                    cv2.imshow('Video', small_frame)
+        if effwidth < 20:
+            break  # If the frame width is too small, exit the loop.
 
-                    print("FPS: ", int(1.0 / (time.time() - fps_var)))
-                    fps_var = time.time()
+        xxx = 930  # Set the desired width for resizing the frame.
+        yyy = 10/16  # Set the desired aspect ratio for resizing the frame.
 
-            frame_id += 1
+
+        # Resize the frame to a smaller size.
+        small_frame = cv2.resize(frame, (xxx, int(xxx*yyy)))
+
+        if frame_id % 2 == 0:
+        # Check if the frame ID is even.
+
+            if not fi.full():
+                # Check if the frame queue is not full, then put the small frame into it.
+                fi.put(small_frame)
+
+                # Show the video frame using OpenCV.
+                cv2.imshow('Video', small_frame)
+
+                # Calculate and display the frames per second (FPS).
+                print("FPS: ", int(1.0 / (time.time() - fps_var)))
+                
+                # Update the FPS variable with the current time.
+                fps_var = time.time()
+
+            frame_id += 1  # Increment the frame ID.
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+                break  # If the 'q' key is pressed, exit the loop.
 
-        # Cleanup: Terminate worker processes
-        for process in processes:
-            process.terminate()
+    # Cleanup: Terminate worker processes.
+    for process in processes:
+        process.terminate()
+
+
 
 
 @app.route('/', methods=['GET', 'POST'])
