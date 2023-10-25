@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Page</title>
+    <link rel="icon" type="image/png" href="./static/images/favicon.png">
+</head>
+<body>
+    <h1>Attendance Data</h1>
+    <table border="1" style="align-items: center;">
+        <tr>
+            <th>StudentID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+        </tr>
+        {% for record in attendance_data %}
+        <tr>
+            <td>{{ record[0] }}</td>
+            <td>{{ record[1] }}</td>
+            <td>{{ record[2] }}</td>
+            <td>{{ record[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

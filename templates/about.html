@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.header{
+    position : fixed;
+    top : 0;
+    left:0;
+    width: 100%;
+    /*border: 3px solid #73AD21;*/
+    font-weight: 700;
+    font-size: 30px;
+    padding : 1%;
+    background-color: #ffffff;
+}
+
+.header a{
+    text-decoration: none;
+    color: #012970;
+}
+.content{
+    position: fixed;
+    top: 10%;
+    background-color: #f8f8f8;
+    width: 100%;
+    height: 90%;
+    padding-left: 5%;
+    padding-right: 5%;
+    overflow: scroll;
+}
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+.column {
+  float: left;
+  width: 33.3%;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.container {
+  padding: 0px 16px;
+}
+
+.container::after, .row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.title {
+  color: grey;
+}
+
+.button {
+  border: none;
+  outline: 0;
+  display: inline-block;
+  padding: 8px;
+  color: white;
+  background-color: #012970;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: #001538;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <a href="/">Attendify</a>
+</div>
+<div class="content">
+    <h1 style="color: #012970;">Our Mission</h1>
+    <hr>
+    <p style="width: 80%;font-size:x-large;text-align: center;margin-left: 10%;">Our website aims to streamline attendance management with cutting-edge facial recognition technology. We're on a mission to enhance efficiency and security in various sectors, from education to corporate environments. By accurately and conveniently marking attendance, we empower organizations to save time, reduce errors, and boost productivity.</p>
+    <h1 style="color: #012970;">Our Team</h1>
+    <hr>
+<div class="row">
+  <div class="column">
+    <div class="card">
+      <img src="gou_image2.jpg" alt="Gourav" style="width:60%; margin-left: 20%;margin-top: 2%;">
+      <div class="container">
+        <h2>Gourav Midya</h2>
+        <p class="title">Project Lead</p>
+        <p>Transforming ideas into elegant code, one line at a time.</p>
+        <p>gouravgmidya@gmail.com</p>
+        <p><button class="button">Contact</button></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="column">
+    <div class="card">
+      <img src="prath.jpg" alt="Mike" style="width:60%; margin-left: 20%;margin-top: 2%;">
+      <div class="container">
+        <h2>Prathamesh Naik</h2>
+        <p class="title">Developer</p>
+        <p>Passionate developer shaping the digital future.</p>
+        <p>prathameshnaik@gmail.com</p>
+        <p><button class="button">Contact</button></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="column">
+    <div class="card">
+      <img src="harsh.jpg" alt="John" style="width:60%; margin-left: 20%;margin-top: 2%;">
+      <div class="container">
+        <h2>John Doe</h2>
+        <p class="title">Designer</p>
+        <p>Crafting software solutions that make life easier.</p>
+        <p>harshmaurya@gmail.com</p>
+        <p><button class="button">Contact</button></p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</body>
+</html>

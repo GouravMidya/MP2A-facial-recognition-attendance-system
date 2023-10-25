@@ -5,7 +5,7 @@ import mysql.connector
 db_connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="20032003",
+    password="root",
     database="attendify"
 )
 
@@ -37,6 +37,19 @@ def index():
         except:
             session['message'] = 'Login failed'
     return render_template('index.html')
+
+@app.route('/attendance_summary')
+def attendance_summary():
+    # Read data from the CSV file
+    attendance_data = []
+    with open(excel_filename, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            attendance_data.append(row)
+
+    # Pass the data to the template
+    return render_template('attendance_summary.html', attendance_data=attendance_data)
+
 
 @app.route('/dashboard')
 def dashboard():
