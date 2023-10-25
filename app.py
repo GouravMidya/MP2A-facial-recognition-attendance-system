@@ -271,6 +271,12 @@ if __name__ == "__main__":
         process.terminate()
 
 
+def update_attendance(student_id):
+    db_cursor.execute("UPDATE Students SET Attendance = Attendance + 1 WHERE StudentID = %s", (student_id,))
+    db_connection.commit()
+    print('Attendance updated for StudentID', student_id)
+        
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -358,7 +364,7 @@ def dashboard():
     #return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id,teacher_name=teacher_name,classrooms_json=json.dumps(classrooms))
     
     
-    sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
+    sql_query = "SELECT StudentID, FullName, Email, image_name,Attendance,TotalAttendance FROM Students"
     db_cursor.execute(sql_query)
     student_data = db_cursor.fetchall()
     # Corrected line in your Flask application
@@ -451,7 +457,8 @@ def attendance_summary():
     current_date = datetime.now().strftime("%Y-%m-%d")
     csv_filename = f"{current_date}.csv"
     csv_header = ["StudentID", "Name", "Email", "Status"]
-
+    db_cursor.execute("UPDATE Students SET TotalAttendance = TotalAttendance + 1")
+    db_connection.commit()
     for student_record in student_data:
         student_id = student_record[0]
         student_name = student_record[1]
@@ -459,6 +466,7 @@ def attendance_summary():
         image_name = student_record[3]
         if image_name in present:
             status = 'P'  # Mark the student as present
+            update_attendance(student_id)
         else:
             status = 'A'  # Mark the student as absent
             # Open the existing CSV file in append mode

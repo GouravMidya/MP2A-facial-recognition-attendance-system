@@ -64,51 +64,28 @@
 
     
     
-    <div id="viewattendance-container" style="display: none;">
+    <div id="viewattendance-container" style="display:block; position: fixed; overflow: auto; max-height: 70%;">
         <h1 id="viewattendance-header">View Attendance</h1>
         <div class="viewattendance-box">
-            <form id="attendance-form">
-                <label for="classroom">Select Classroom:</label>
-                <select id="classroom" name="classroom">
-                    {% if classrooms %}
-                        {% for classroom in classrooms %}
-                            <option value="{{ classroom.ClassroomID }}">{{ classroom.Division }}</option>
-                        {% endfor %}
-                    {% else %}
-                        <option value="">No classrooms available</option>
-                    {% endif %}                
-                </select>
-
-                <label for="subject" style="margin-left: 5%;">Select Subject:</label>
-                <select id="subject" name="subject">
-                    <option value="subject1">Subject 1</option>
-                    <option value="subject2" >Subject 2</option>
-                    <!-- Add more subject options here -->
-                </select>
-
-                <button type="submit" id="fetch-button">Fetch Records</button>
-            </form>
-
             <div id="attendance-table-container">
                 <table id="attendance-table" border="1">
                     <thead>
                         <tr>
                             <th>Roll Number</th>
                             <th>Name</th>
+                            <th>Email</th>
                             <th>Attendance</th>
-                            <th>Total Lectures</th>
-                            <th>Attendance Percentage</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>14</td>
-                            <td>Gourav Midya</td>
-                            <td>14</td>
-                            <td>16</td>
-                            <td>80%</td>
-                        </tr>
-                        <!-- Attendance records will be populated here -->
+                        {% for record in student_data %}
+                            <tr>
+                                <td>{{ record[0] }}</td>
+                                <td>{{ record[1] }}</td>
+                                <td>{{ record[2] }}</td>
+                                <td>{{ record[4] }} / {{record[5]}}</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -172,9 +149,6 @@
             <button type="submit" onclick="takePicture()">Take Picture</button>
             <canvas id="canvas" style="display:none;"></canvas>
             <video id="video" style="display:none;"></video>
-            <div>
-                <button type="backdivlink">Back</button>
-            </div>
         </div>
         
     </div>
