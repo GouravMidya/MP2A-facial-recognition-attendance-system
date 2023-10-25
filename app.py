@@ -74,7 +74,11 @@ def load_reference_images():
             if is_image_file(reference_img_path):
                 name = os.path.splitext(file)[0]
                 image = face_recognition.load_image_file(reference_img_path)
-                reference_encodings[name] = face_recognition.face_encodings(image)[0]
+                encodings = face_recognition.face_encodings(image)
+                if encodings:
+                    reference_encodings[name] = encodings[0]
+                else:
+                    print(f"No face found in {name}'s reference image.")
 
 
 load_reference_images()

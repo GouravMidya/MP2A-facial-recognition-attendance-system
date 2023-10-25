@@ -203,20 +203,9 @@ function deleteNote(noteId) {
             .then(response => response.json())
             .then(data => console.log('Image saved:', data))
             .catch(error => console.error('Error saving image:', error));
-        }
-
-        function stopCamera() {
-            // Stop all tracks in the stream
-            if (videoStream) {
-                const tracks = videoStream.getTracks();
-                tracks.forEach(track => track.stop());
-            }
-
-            // Remove the stream from the video element
-            video.srcObject = null;
-
-            // Hide the video element
-            video.style.display = 'none';
+            alert("Student added successfully!");
+            document.getElementById("addStudentContentP2").style.display = "none";
+            document.getElementById("dashboardContent").style.display = "block";
         }
 
 
