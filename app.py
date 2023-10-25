@@ -62,7 +62,6 @@ present = []
 presence_timers = {} # Maintain a dictionary to track the presence of individuals and their timers
 global student_name
 global student_email
-global student_roll_number 
 
 
 
@@ -266,7 +265,6 @@ def submit_student():
     if request.method == 'POST':
         student_name = request.form.get('studentName')
         student_email = request.form.get('studentEmail')
-        student_roll_number = request.form.get('studentRollNumber')
 
         session['student_name'] = student_name
         session['student_email'] = student_email
@@ -275,8 +273,8 @@ def submit_student():
         student_image = request.form.get('studentImage')  # This assumes that the image data is sent as part of the form data
 
         # Insert the student data into the database
-        db_cursor.execute("INSERT INTO Students (FullName, Email, RollNo) VALUES (%s, %s, %s)",
-                           (student_name, student_email, student_roll_number))
+        db_cursor.execute("INSERT INTO Students (FullName, Email) VALUES (%s, %s)",
+                           (student_name, student_email))
         db_connection.commit()
 
         # You can add any additional logic or redirects here
@@ -298,14 +296,11 @@ def dashboard():
         student_name = request.form['studentName']
         print(student_name)
         student_email = request.form['studentEmail']
-        student_roll_number = request.form['studentRollNumber']
         # Save the student details to the database
-        db_cursor.execute("INSERT INTO Students (FullName, Email  , RollNo) VALUES (%s, %s, %s, %s)",(student_name, student_email, student_roll_number))
+        db_cursor.execute("INSERT INTO Students (FullName, Email  ) VALUES (%s, %s)",(student_name, student_email))
         db_connection.commit()
 
 
-    # Fetch classroom data
-    classrooms = get_classrooms()
     # Pass the success message and TeacherID to the template
     #return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id,teacher_name=teacher_name,classrooms_json=json.dumps(classrooms))
     
@@ -325,73 +320,55 @@ def video_feed():
 def handle_update_present_request():
     emit('update_present', {'present': present})
 
+
+# REST API route to save the image
 @app.route('/save-image', methods=['POST'])
 def save_image():
     try:
         data = request.get_json()
         image_data = data.get('imageData')
 
-        # Process the face and save only the face
+        # Call the save_face_from_base64 function
         save_face_from_base64(image_data)
 
         return jsonify({'status': 'success'})
     except Exception as e:
         print('Error saving image:', str(e))
         return jsonify({'status': 'error'})
+    
 
 def save_face_from_base64(image_data):
     try:
-        student_name = session.get('student_name')
-        student_email = session.get('student_email')
+        sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
+        db_cursor.execute(sql_query)
+        student_data = db_cursor.fetchall()
+        for student_record in student_data:
+            id=student_record[0]
+            student_name = student_record[1]
+            student_email = student_record[2]
+            image_name = student_record[3]
 
         if not student_name or not student_email:
             # Handle the case where student_name and student_email are not available
             print('Missing student_name or student_email in the session')
             return
+
         # Decode the base64 image data
         image_data_decoded = base64.b64decode(image_data.split(',')[1])
 
-        # Convert the bytes to a numpy array
-        nparr = np.frombuffer(image_data_decoded, np.uint8)
+        # Save the image directly without further processing
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id}.png"), 'wb') as img_file:
+            img_file.write(image_data_decoded)
 
-        # Decode the image using OpenCV
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        # Update the "image_name" field in the database
+        db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", (student_email, student_name))
+        id = db_cursor.fetchone()
+        image_name = f"{student_name}_{id[0]}"
+        db_cursor.execute("UPDATE Students SET image_name = %s WHERE StudentID = %s", (image_name, id[0]))
+        db_connection.commit()
 
-        # Load the image using face_recognition
-        image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        print('Face saved:', image_name)
 
-        # Find face locations in the image
-        face_locations = face_recognition.face_locations(image)
-
-        if len(face_locations) > 0:
-            # Extract the first face found (you may want to handle multiple faces differently)
-            top, right, bottom, left = face_locations[0]
-            face_image = image[top:bottom, left:right]
-
-            # Preserve the aspect ratio while cropping the face
-            aspect_ratio = face_image.shape[1] / face_image.shape[0]
-            target_height = 100  # Adjust this value based on your preference
-            target_width = int(target_height * aspect_ratio)
-
-            # Resize the face image to the target dimensions
-            face_image = cv2.resize(face_image, (target_width, target_height))
-
-            #Get data from db
-            db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", ( student_email,student_name))
-            id = db_cursor.fetchone()
-
-            # Update the "image_name" field
-            image_name = f"{student_name}_{id[0]}"
-            db_cursor.execute("UPDATE Students SET image_name = %s WHERE StudentID = %s", (image_name, id[0]))
-            db_connection.commit()
-
-            # Save the face image
-            face_filename = os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id[0]}.png")
-            face_image_pil = Image.fromarray(face_image)
-            face_image_pil.save(face_filename)
-            print('Face saved:', face_filename)
-        else:
-            print('No face detected.')
     except Exception as e:
         print('Error processing face:', str(e))
 
@@ -426,6 +403,8 @@ def attendance_summary():
         if image_name in present:
             status = 'P'  # Mark the student as present
         else:
+            print(image_name)
+            print(present)
             status = 'A'  # Mark the student as absent
             # Open the existing CSV file in append mode
         with open(csv_filename, 'a', newline='') as csvfile:
