@@ -181,14 +181,11 @@ def face_recognition_worker(fi, fl):
     while True:
         # Get the small frame from the input queue.
         small_frame = fi.get()
-        print("Running face recognition process")
-
         # Detect face locations in the small frame using the HOG model.
         face_locations = face_recognition.face_locations(small_frame, model="hog")
 
         # If any face locations are found, process and send them.
         if len(face_locations) > 0:
-            print(face_locations)
             for (top7, right7, bottom7, left7) in face_locations:
                 # Extract the face region from the small frame.
                 small_frame_c = small_frame[top7:bottom7, left7:right7]
@@ -256,7 +253,6 @@ if __name__ == "__main__":
                 cv2.imshow('Video', small_frame)
 
                 # Calculate and display the frames per second (FPS).
-                print("FPS: ", int(1.0 / (time.time() - fps_var)))
                 
                 # Update the FPS variable with the current time.
                 fps_var = time.time()
@@ -348,7 +344,6 @@ def dashboard():
     if request.method == 'POST':
         # Handle student form submission
         student_name = request.form['studentName']
-        print(student_name)
         student_email = request.form['studentEmail']
         # Save the student details to the database
         db_cursor.execute("INSERT INTO Students (FullName, Email  ) VALUES (%s, %s)",(student_name, student_email))
@@ -461,8 +456,6 @@ def attendance_summary():
         if image_name in present:
             status = 'P'  # Mark the student as present
         else:
-            print(image_name)
-            print(present)
             status = 'A'  # Mark the student as absent
             # Open the existing CSV file in append mode
         with open(csv_filename, 'a', newline='') as csvfile:
@@ -486,6 +479,9 @@ def attendance_summary():
 def submit_student_route():
     return submit_student()
 
+@app.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
