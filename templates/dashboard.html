@@ -187,14 +187,8 @@
         <h1 id="viewstudent-header">View Students:</h1>
         <div class="viewstudent-box">
             <form id="student-form">
-                <label for="classroom">Select Classroom:</label>
-                <select id="classroom" name="classroom">
-                    <option value="classroom1">Classroom 1</option>
-                    <option value="classroom2">Classroom 2</option>
-                    <!-- Add more classroom options here -->
                 </select>
-                <button type="submit" id="fetch-button">Fetch Records</button>
-            </form>
+                
 
             <div id="student-table-container">
                 <table id="student-table" border="1">
@@ -202,24 +196,24 @@
                         <tr>
                             <th>Roll Number</th>
                             <th>Name</th>
-                            <th>Attended Lectures</th>
-                            <th>Total Lectures</th>
-                            <th>Attendance Percentage</th>
+                            <th>Email</th>
                             <th>Student Image</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>14</td>
-                            <td>Gourav Midya</td>
-                            <td>14</td>
-                            <td>16</td>
-                            <td>80%</td>
-                            <td><a href="">image link here</a></td>
-                        </tr>
+                        {% for record in attendance_data %}
+                    <tr>
+                        <td>{{ record[0] }}</td>
+                        <td>{{ record[1] }}</td>
+                        <td>{{ record[2] }}</td>
+                        <td>{{ record[3] }}</td>
+                    </tr>
+                    {% endfor %}
                         <!-- Attendance records will be populated here -->
                     </tbody>
                 </table>
+                <button type="submit" id="fetch-button" action="attendance_summary()">Fetch Records</button>
+            </form>
             </div>
         </div>
     </div>
