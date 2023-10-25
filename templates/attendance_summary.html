@@ -3,24 +3,31 @@
 <head>
     <title>Attendance Page</title>
     <link rel="icon" type="image/png" href="./static/images/favicon.png">
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="static/attend.css">
 </head>
 <body>
+    <div class="header">
+        <a href="/">Attendify</a>
+    </div>
     <h1>Attendance Data</h1>
-    <table border="1" style="align-items: center;">
-        <tr>
-            <th>StudentID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Status</th>
-        </tr>
-        {% for record in attendance_data %}
-        <tr>
-            <td>{{ record[0] }}</td>
-            <td>{{ record[1] }}</td>
-            <td>{{ record[2] }}</td>
-            <td>{{ record[3] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div id="attendance-container">
+        <table border="1" style="align-items: center;" id="attendance-table">
+            <tr>
+                <th>StudentID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+            </tr>
+            {% for record in attendance_data %}
+            <tr>
+                <td>{{ record[0] }}</td>
+                <td>{{ record[1] }}</td>
+                <td>{{ record[2] }}</td>
+                <td>{{ record[3] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 </body>
 </html>

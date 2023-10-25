@@ -87,46 +87,46 @@ ul {
   height: 70%;
 }
 
-#attendance-form{
+#student-table-form{
   display: flex;
   justify-content: space-between; /* Align items on both ends */
   align-items: center; /* Vertically center items */
 }
 
-#attendance-table-container{
+#student-table-table-container{
   margin-top: 1%;
 }
 
-#attendance-table{
+#student-table-table{
   background-color: #012970;
   color: #f0f4fb;
   width: 100%;
   border-collapse: collapse;
 }
 
-#attendance-table th,
-#attendance-table td {
+#student-table-table th,
+#student-table-table td {
     padding: 10px; /* Increase padding for better spacing */
     text-align: center; /* Center-align text */
 }
 
-#attendance-table th {
+#student-table-table th {
     background-color: #012970;
     color: #f0f4fb;
     font-weight: bold;
 }
 
-#attendance-table th:first-child {
+#student-table-table th:first-child {
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
 }
 
-#attendance-table th:last-child {
+#student-table-table th:last-child {
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
 }
 
-#attendance-table td{
+#student-table-table td{
   background-color: #ffffff;
   color: #000;
 }
@@ -179,7 +179,7 @@ ul {
   height: 78%;
 }
 
-#attendance-text{
+#student-table-text{
   position: fixed;
   top: 43%;
   right: 7%;

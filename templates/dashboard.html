@@ -6,6 +6,7 @@
     <title>Attendify</title>
     <link rel="stylesheet" href="static/dashboard-style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+    <link rel="icon" type="image/png" href="./static/images/favicon.png">
 </head>
 <body>
     
@@ -190,29 +191,27 @@
                 </select>
                 
 
-            <div id="student-table-container">
-                <table id="student-table" border="1">
+            <div id="student-table-container" style="margin-left:5%; width: 90%;">
+                <table id="student-table" border="1" style="width: 100%;">
                     <thead>
                         <tr>
                             <th>Roll Number</th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Student Image</th>
+                            <th>Image_Name</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for record in attendance_data %}
-                    <tr>
-                        <td>{{ record[0] }}</td>
-                        <td>{{ record[1] }}</td>
-                        <td>{{ record[2] }}</td>
-                        <td>{{ record[3] }}</td>
-                    </tr>
-                    {% endfor %}
-                        <!-- Attendance records will be populated here -->
+                        {% for record in student_data %}
+                            <tr>
+                                <td>{{ record[0] }}</td>
+                                <td>{{ record[1] }}</td>
+                                <td>{{ record[2] }}</td>
+                                <td>{{ record[3] }}</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
-                <button type="submit" id="fetch-button" action="attendance_summary()">Fetch Records</button>
             </form>
             </div>
         </div>

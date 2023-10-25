@@ -62,6 +62,7 @@ present = []
 presence_timers = {} # Maintain a dictionary to track the presence of individuals and their timers
 global student_name
 global student_email
+global student_data
 
 
 
@@ -304,11 +305,15 @@ def dashboard():
     # Pass the success message and TeacherID to the template
     #return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id,teacher_name=teacher_name,classrooms_json=json.dumps(classrooms))
     
+    
+    sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
+    db_cursor.execute(sql_query)
+    student_data = db_cursor.fetchall()
     # Corrected line in your Flask application
     video_feed = url_for('video_feed')
 
     return render_template('dashboard.html', message=session.pop('message', ''),
-                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present)
+                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data)
 
 
 # In your Flask application
@@ -429,14 +434,5 @@ def submit_student_route():
     return submit_student()
 
 
-def fetch_students():
-    sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
-    db_cursor.execute(sql_query)
-    student_data = db_cursor.fetchall()
-    for student_record in student_data:
-        student_id = student_record[0]
-        student_name = student_record[1]
-        student_email = student_record[2]
-        
 if __name__ == "__main__":
     app.run(debug=True)
