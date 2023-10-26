@@ -16,7 +16,7 @@ import pandas as pd
 #testing if i have access
 
 #Modularization
-from imagin import is_image_file
+from imagin import is_image_file,load_reference_images
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -66,20 +66,6 @@ global student_data
 
 
 #loads reference images for face recognition by iterating through files
-def load_reference_images():
-    for root, dirs, files in os.walk(facedb_path):
-        for file in files:
-            reference_img_path = os.path.join(root, file)
-            if is_image_file(reference_img_path):
-                name = os.path.splitext(file)[0]
-                image = face_recognition.load_image_file(reference_img_path)
-                encodings = face_recognition.face_encodings(image)
-                if encodings:
-                    reference_encodings[name] = encodings[0]
-                else:
-                    print(f"No face found in {name}'s reference image.")
-
-
 load_reference_images()
 
 presence_timers = {} 
