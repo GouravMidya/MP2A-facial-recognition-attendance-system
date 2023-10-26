@@ -15,6 +15,9 @@ from datetime import datetime
 import pandas as pd
 #testing if i have access
 
+#Modularization
+from imagin import is_image_file
+
 app = Flask(__name__)
 socketio = SocketIO(app)
 
@@ -60,10 +63,6 @@ global student_email
 global student_data
 
 
-#checks if a given file path represents an image file
-def is_image_file(file_path):
-    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
-    return any(file_path.lower().endswith(ext) for ext in image_extensions)
 
 
 #loads reference images for face recognition by iterating through files
