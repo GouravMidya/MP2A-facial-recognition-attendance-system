@@ -1,6 +1,11 @@
 import os
 import face_recognition
 
+UPLOAD_FOLDER = 'facedb'
+
+# Ensure the "facedb" folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 # Declared Variables
 facedb_path = 'facedb'
 reference_encodings = {}

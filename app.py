@@ -37,9 +37,6 @@ db_cursor = db_connection.cursor()
 UPLOAD_FOLDER = 'facedb'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Ensure the "facedb" folder exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 # Excel Sheet :
 now= datetime.now()
 current_date=now.strftime("%Y-%m-%d")
@@ -264,48 +261,6 @@ def update_attendance(student_id):
 
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        email = request.form.get('username')
-        password = request.form.get('password')
-        try:
-            db_cursor.execute("SELECT * FROM teachers WHERE Email = %s;", (email,))
-            val = db_cursor.fetchone()
-            if val and password == val[3]:  # Use integer index to access 'Password'
-                session['message'] = 'Logged in successfully!'
-                session['teacher_id'] = val[0]  # Use integer index to access 'TeacherID'
-                session['teacher_name'] = val[1]  # Use integer index to access 'FullName'
-                return redirect(url_for('dashboard'))
-            else:
-                session['message'] = 'Login failed'
-        except Exception as e:
-            print("Login failed:", str(e))
-            session['message'] = 'Login failed'
-
-    return render_template('index.html')
-
-
-@app.route('/signup', methods=['POST'])
-def signup():
-    if request.method == 'POST':
-        full_name = request.form.get('fullname')
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        try:
-            db_cursor.execute("INSERT INTO teachers (FullName, Email, Password) VALUES (%s, %s, %s)",
-                              (full_name, email, password))
-            db_connection.commit()
-
-            session['message'] = 'Signup successful! Please login.'
-            return redirect(url_for('index'))
-        except Exception as e:
-            print("Signup failed:", str(e))
-            session['message'] = 'Signup failed'
-
-    return render_template('index.html')
-
 def submit_student():
     if request.method == 'POST':
         student_name = request.form.get('studentName')
@@ -330,60 +285,14 @@ def submit_student():
     return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
 
 
-@app.route('/dashboard',  methods=['GET', 'POST'])
-def dashboard():
-    # Retrieve TeacherID from the session
-    teacher_id = session.get('teacher_id', None)
-    teacher_name = session.get('teacher_name',None)
-
-    if request.method == 'POST':
-        # Handle student form submission
-        student_name = request.form['studentName']
-        student_email = request.form['studentEmail']
-        # Save the student details to the database
-        db_cursor.execute("INSERT INTO Students (FullName, Email  ) VALUES (%s, %s)",(student_name, student_email))
-        db_connection.commit()
-
-
-    # Pass the success message and TeacherID to the template
-    #return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id,teacher_name=teacher_name,classrooms_json=json.dumps(classrooms))
-    
-    
-    sql_query = "SELECT StudentID, FullName, Email, image_name,Attendance,TotalAttendance FROM Students"
-    db_cursor.execute(sql_query)
-    student_data = db_cursor.fetchall()
-    # Corrected line in your Flask application
-    video_feed = url_for('video_feed')
-
-    return render_template('dashboard.html', message=session.pop('message', ''),
-                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data)
-
 
 # In your Flask application
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @socketio.on('update_present_request')
 def handle_update_present_request():
     emit('update_present', {'present': present})
 
 
-# REST API route to save the image
-@app.route('/save-image', methods=['POST'])
-def save_image():
-    try:
-        data = request.get_json()
-        image_data = data.get('imageData')
-
-        # Call the save_face_from_base64 function
-        save_face_from_base64(image_data)
-
-        return jsonify({'status': 'success'})
-    except Exception as e:
-        print('Error saving image:', str(e))
-        return jsonify({'status': 'error'})
-    
 
 def save_face_from_base64(image_data):
     try:
@@ -420,6 +329,85 @@ def save_face_from_base64(image_data):
     except Exception as e:
         print('Error processing face:', str(e))
 
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+''''''''''''''''''''''''''''''''''''''''''
+
+# Login Page or Landing page 
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        email = request.form.get('username')
+        password = request.form.get('password')
+        try:
+            db_cursor.execute("SELECT * FROM teachers WHERE Email = %s;", (email,))
+            val = db_cursor.fetchone()
+            if val and password == val[3]:  # Use integer index to access 'Password'
+                session['message'] = 'Logged in successfully!'
+                session['teacher_id'] = val[0]  # Use integer index to access 'TeacherID'
+                session['teacher_name'] = val[1]  # Use integer index to access 'FullName'
+                return redirect(url_for('dashboard'))
+            else:
+                session['message'] = 'Login failed'
+        except Exception as e:
+            print("Login failed:", str(e))
+            session['message'] = 'Login failed'
+
+    return render_template('index.html')
+
+# Signup Page
+@app.route('/signup', methods=['POST'])
+def signup():
+    if request.method == 'POST':
+        full_name = request.form.get('fullname')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        try:
+            db_cursor.execute("INSERT INTO teachers (FullName, Email, Password) VALUES (%s, %s, %s)",
+                              (full_name, email, password))
+            db_connection.commit()
+
+            session['message'] = 'Signup successful! Please login.'
+            return redirect(url_for('index'))
+        except Exception as e:
+            print("Signup failed:", str(e))
+            session['message'] = 'Signup failed'
+
+    return render_template('index.html')
+
+# Dashboard
+@app.route('/dashboard',  methods=['GET', 'POST'])
+def dashboard():
+    # Retrieve TeacherID from the session
+    teacher_id = session.get('teacher_id', None)
+    teacher_name = session.get('teacher_name',None)
+
+    if request.method == 'POST':
+        # Handle student form submission
+        student_name = request.form['studentName']
+        student_email = request.form['studentEmail']
+        # Save the student details to the database
+        db_cursor.execute("INSERT INTO Students (FullName, Email  ) VALUES (%s, %s)",(student_name, student_email))
+        db_connection.commit()
+
+
+    # Pass the success message and TeacherID to the template
+    #return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id,teacher_name=teacher_name,classrooms_json=json.dumps(classrooms))
+    
+    
+    sql_query = "SELECT StudentID, FullName, Email, image_name,Attendance,TotalAttendance FROM Students"
+    db_cursor.execute(sql_query)
+    student_data = db_cursor.fetchall()
+    # Corrected line in your Flask application
+    video_feed = url_for('video_feed')
+
+    return render_template('dashboard.html', message=session.pop('message', ''),
+                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data)
 
 
 @app.route('/attendance_summary')
@@ -471,6 +459,25 @@ def attendance_summary():
 
     return render_template('attendance_summary.html', attendance_data=attendance_data)
 
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+# REST API route to save the image
+@app.route('/save-image', methods=['POST'])
+def save_image():
+    try:
+        data = request.get_json()
+        image_data = data.get('imageData')
+
+        # Call the save_face_from_base64 function
+        save_face_from_base64(image_data)
+
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        print('Error saving image:', str(e))
+        return jsonify({'status': 'error'})
 
 @app.route('/submit-student', methods=['POST'])
 def submit_student_route():
@@ -479,6 +486,3 @@ def submit_student_route():
 @app.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
-
-if __name__ == "__main__":
-    app.run(debug=True)
