@@ -66,7 +66,7 @@ global student_data
 
 
 #loads reference images for face recognition by iterating through files
-load_reference_images()
+reference_encodings = load_reference_images()
 
 presence_timers = {} 
 
