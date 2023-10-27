@@ -11,6 +11,7 @@ from flask_socketio import SocketIO, emit
 import base64
 import numpy as np
 from PIL import Image
+from datetime import datetime
 import pandas as pd
 #testing if i have access
 
@@ -36,6 +37,18 @@ db_cursor = db_connection.cursor()
 UPLOAD_FOLDER = 'facedb'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Excel Sheet :
+now= datetime.now()
+current_date=now.strftime("%Y-%m-%d")
+f= open(current_date+'.csv','w+',newline='')
+lnwriter = csv.writer(f)
+excel_filename=current_date+'.csv'
+
+# Fetch classroom data from the database
+def get_classrooms():
+    db_cursor.execute("SELECT ClassroomID, Year, Division, Branch FROM Classrooms")
+    classrooms = db_cursor.fetchall()
+    return classrooms
 
 # Declared Variables
 facedb_path = 'facedb'
