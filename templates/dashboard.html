@@ -39,34 +39,13 @@
         <li><a href="/about">About</a></li>
 
     </ul>
-<!--
-    {% block header %}{% endblock %}
-    <div class="container">
-      {% block br %}{% endblock %} {% with messages =
-      get_flashed_messages(with_categories=true) %} {% if messages %} {% for
-      category, message in messages %} {% if category == 'error' %}
-      <div class="alert alert-danger alter-dismissable fade show" role="alert" style="margin-top: 10px;">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      {% else %}
-      <div class="alert alert-success alter-dismissable fade show" role="alert" style="margin-top: 10px;">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      {% endif %} {% endfor %} {% endif %} {% endwith %} {% block content %} {%
-      endblock %}
-      -->
+
 
     
       <div id="viewattendance-container" style="display: none;">
         <h1 id="viewattendance-header">View Attendance</h1>
         <div class="viewattendance-box" style="Overflow:scroll">
-            <form id="attendance-form">
+            <form id="attendance-form" action="/fetch_attendance" method="POST">
                 <label for="classroom">Select Classroom:</label>
                 <select id="classroom" name="classroom">
                     {% if classrooms %}
@@ -116,15 +95,12 @@
     <div id="takeattendance-container" style="display: none;">
         <h1 id="takeattendance-header">Take Attendance</h1>
         <div class="takeattendance-box">
-            
-            <!-- In your dashboard.html file -->
-            <!-- In your dashboard.html file -->
             <div id="camera-feed" style="margin-right: -50px;">
                 <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Live Video Feed" width="100%" height="100%" style="margin-right:-50px">
             </div>
 
 
-            <div id="attendance-text" style="margin-top: -40%;margin-left: 73%;">
+            <div id="attendance-text" style="margin-top: -7%;margin-left: 73%;">
                 <h2>Present Students:</h2>
                 <textarea name="attendance-record" id="attendance-record" cols="25" rows="15">
                     <div>
@@ -135,7 +111,7 @@
                 </textarea>
             </div>
             <form id="attendance-form2" action="{{ url_for('attendance_summary',)}}" method="get">
-                <button type="submit" id="camera-button" style="margin-left: 77%; margin-top: 3%;">Stop Camera</button>
+                <button type="submit" id="camera-button" style="margin-left: 83%; margin-top: -20%; margin-bottom: 20%;">Stop Camera</button>
             </form>
         </div>
     </div>
@@ -176,7 +152,7 @@
 
     <div id="viewstudent-container" style="display: none;">
         <h1 id="viewstudent-header">View Students:</h1>
-        <div class="viewstudent-box">
+        <div class="viewstudent-box" style="Overflow:scroll">
             <form id="student-form">
                 </select>
                 
@@ -206,9 +182,37 @@
             </div>
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <script src="static/dashboard_script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#attendance-form').submit(function (event) {
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/fetch_attendance',
+                    data: $('#attendance-form').serialize(),
+                    success: function (data) {
+                        $('#attendance-table tbody').html(''); // Clear existing rows
+                        $.each(data, function (index, record) {
+                            $('#attendance-table tbody').append(
+                                '<tr>' +
+                                '<td>' + record[0] + '</td>' +
+                                '<td>' + record[1] + '</td>' +
+                                '<td>' + record[2] + '</td>' +
+                                '<td>' + record[3] + ' / ' + record[4] + '</td>' +
+                                '</tr>'
+                            );
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+    
 
 </body>
 </html>

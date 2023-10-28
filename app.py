@@ -84,6 +84,9 @@ def generate_frames():
             current_frame_faces = {}
 
             for name in matched_names:
+                text = f"MATCH ({', '.join(matched_names)})"
+                cv2.putText(frame, text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
                 if name not in presence_timers:
                     presence_timers[name] = {'start_time': time.time(), 'duration': 0}
                 else:
