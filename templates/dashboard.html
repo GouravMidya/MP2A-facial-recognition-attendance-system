@@ -63,18 +63,39 @@
       -->
 
     
-    
-    <div id="viewattendance-container" style="display:block; position: fixed; overflow: auto; max-height: 70%;">
+      <div id="viewattendance-container" style="display: none;">
         <h1 id="viewattendance-header">View Attendance</h1>
-        <div class="viewattendance-box">
-            <div id="attendance-table-container">
+        <div class="viewattendance-box" style="Overflow:scroll">
+            <form id="attendance-form">
+                <label for="classroom">Select Classroom:</label>
+                <select id="classroom" name="classroom">
+                    {% if classrooms %}
+                        {% for classroom in classrooms %}
+                            <option value="{{ classroom.ClassroomID }}">{{ classroom.Division }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No classrooms available</option>
+                    {% endif %}                
+                </select>
+
+                <label for="subject" style="margin-left: 5%;">Select Subject:</label>
+                <select id="subject" name="subject">
+                    <option value="subject1">Subject 1</option>
+                    <option value="subject2" >Subject 2</option>
+                    <!-- Add more subject options here -->
+                </select>
+
+                <button type="submit" id="fetch-button">Fetch Records</button>
+            </form>
+
+            <div id="attendance-table-container" >
                 <table id="attendance-table" border="1">
                     <thead>
                         <tr>
                             <th>Roll Number</th>
                             <th>Name</th>
-                            <th>Email</th>
                             <th>Attendance</th>
+                            <th>Total Lectures</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -185,7 +206,9 @@
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script src="static/dashboard_script.js"></script>
 
-      <script src="static/dashboard_script.js"></script>
 </body>
 </html>

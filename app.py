@@ -237,6 +237,7 @@ def handle_update_present_request():
     emit('update_present', {'present': present})
 
 
+# Save image in Folder
 
 def save_face_from_base64(image_data):
     try:
