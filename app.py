@@ -294,6 +294,7 @@ def save_face_from_base64(image_data):
         db_connection.commit()
 
         print('Face saved:', image_name)
+        present.append(image_name)
 
     except Exception as e:
         print('Error processing face:', str(e))
