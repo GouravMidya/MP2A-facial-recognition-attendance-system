@@ -295,6 +295,8 @@ def save_face_from_base64(image_data):
 
         print('Face saved:', image_name)
         present.append(image_name)
+        db_cursor.execute("UPDATE Students SET image_name = %s WHERE StudentID = %s", (image_name, id[0]))
+        db_connection.commit()
 
     except Exception as e:
         print('Error processing face:', str(e))
@@ -563,4 +565,3 @@ def viewattendance():
 @app.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
-

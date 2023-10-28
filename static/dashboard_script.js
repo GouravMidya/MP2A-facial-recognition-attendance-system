@@ -266,4 +266,3 @@ function deleteNote(noteId) {
     })
 }
 
-
