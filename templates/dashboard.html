@@ -23,6 +23,8 @@
             {% endif %}
         {% endif %}
     </div>
+
+
     <ul>
         <section style="color:#012970 ;">Manage Classrooms</section>
         <hr style="width: 75%;">
@@ -39,71 +41,51 @@
         <li><a href="/about">About</a></li>
 
     </ul>
-<!--
-    {% block header %}{% endblock %}
-    <div class="container">
-      {% block br %}{% endblock %} {% with messages =
-      get_flashed_messages(with_categories=true) %} {% if messages %} {% for
-      category, message in messages %} {% if category == 'error' %}
-      <div class="alert alert-danger alter-dismissable fade show" role="alert" style="margin-top: 10px;">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      {% else %}
-      <div class="alert alert-success alter-dismissable fade show" role="alert" style="margin-top: 10px;">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      {% endif %} {% endfor %} {% endif %} {% endwith %} {% block content %} {%
-      endblock %}
-      -->
+
 
     
-    
-    <div id="viewattendance-container" style="display:block; position: fixed; overflow: auto; max-height: 70%;">
+    <div id="viewattendance-container" style="display: none;">
         <h1 id="viewattendance-header">View Attendance</h1>
-        <div class="viewattendance-box">
-            <div id="attendance-table-container">
-                <table id="attendance-table" border="1">
-                    <thead>
-                        <tr>
-                            <th>Roll Number</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Attendance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in student_data %}
-                            <tr>
-                                <td>{{ record[0] }}</td>
-                                <td>{{ record[1] }}</td>
-                                <td>{{ record[2] }}</td>
-                                <td>{{ record[4] }} / {{record[5]}}</td>
-                            </tr>
+        <div class="viewattendance-box" style="Overflow:scroll">
+            <form id="attendance-form" action="/viewattendance" method="POST">
+                <label for="classroom">Select Class:</label>
+                <select id="classroom" name="classroom">
+                    {% if classrooms %}
+                        {% for classroom in classrooms %}
+                            <option value="{{ classroom[0] }}">{{ classroom[2] }}</option>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    {% else %}
+                        <option value="">No classrooms available</option>
+                    {% endif %}                
+                </select>
+            
+                <label for="subject">Select Subject:</label>
+                <select id="subject" name="subject">
+                    {% if subjects %}
+                        {% for subject in subjects %}
+                            <option value="{{ subject[0] }}">{{ subject[0] }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No Subject available</option>
+                    {% endif %}                
+                </select>
+            
+                <label for="date">Select Date:</label>
+                <input type="date" id="date" name="date">
+                <button type="submit" id="fetch-button">Fetch Records</button>
+            </form>
         </div>
     </div>
 
     <div id="takeattendance-container" style="display: none;">
         <h1 id="takeattendance-header">Take Attendance</h1>
         <div class="takeattendance-box">
-            
-            <!-- In your dashboard.html file -->
-            <!-- In your dashboard.html file -->
             <div id="camera-feed" style="margin-right: -50px;">
                 <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Live Video Feed" width="100%" height="100%" style="margin-right:-50px">
             </div>
 
 
-            <div id="attendance-text" style="margin-top: -40%;margin-left: 73%;">
+            <div id="attendance-text" style="margin-top: -7%;margin-left: 73%;">
                 <h2>Present Students:</h2>
                 <textarea name="attendance-record" id="attendance-record" cols="25" rows="15">
                     <div>
@@ -114,7 +96,7 @@
                 </textarea>
             </div>
             <form id="attendance-form2" action="{{ url_for('attendance_summary',)}}" method="get">
-                <button type="submit" id="camera-button" style="margin-left: 77%; margin-top: 3%;">Stop Camera</button>
+                <button type="submit" id="camera-button" style="margin-left: 83%; margin-top: -20%; margin-bottom: 20%;">Stop Camera</button>
             </form>
         </div>
     </div>
@@ -155,37 +137,37 @@
 
     <div id="viewstudent-container" style="display: none;">
         <h1 id="viewstudent-header">View Students:</h1>
-        <div class="viewstudent-box">
+        <div class="viewstudent-box" style="Overflow:scroll">
             <form id="student-form">
-                </select>
-                
-
-            <div id="student-table-container" style="margin-left:5%; width: 90%;">
-                <table id="student-table" border="1" style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>Roll Number</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Image_Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in student_data %}
+                <div id="student-table-container" style="margin-left:5%; width: 90%;">
+                    <table id="student-table" border="1" style="width: 100%;">
+                        <thead>
                             <tr>
-                                <td>{{ record[0] }}</td>
-                                <td>{{ record[1] }}</td>
-                                <td>{{ record[2] }}</td>
-                                <td>{{ record[3] }}</td>
+                                <th>Roll Number</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Image_Name</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for record in student_data %}
+                                <tr>
+                                    <td>{{ record[0] }}</td>
+                                    <td>{{ record[1] }}</td>
+                                    <td>{{ record[2] }}</td>
+                                    <td>{{ record[3] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </form>
-            </div>
         </div>
     </div>
 
-      <script src="static/dashboard_script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script src="static/dashboard_script.js"></script>
+
 </body>
 </html>

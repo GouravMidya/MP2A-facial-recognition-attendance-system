@@ -265,3 +265,5 @@ function deleteNote(noteId) {
         addStudentContentP2.style.display = "block";
     })
 }
+
+

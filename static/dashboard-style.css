@@ -87,46 +87,46 @@ border-radius: 20px;
 height: 70%;
 }
 
-#student-table-form{
+#attendance-form{
 display: flex;
 justify-content: space-between; /* Align items on both ends */
 align-items: center; /* Vertically center items */
 }
 
-#student-table-table-container{
+#attendance-table-container{
 margin-top: 1%;
 }
 
-#student-table-table{
+#attendance-table{
 background-color: #012970;
 color: #f0f4fb;
 width: 100%;
 border-collapse: collapse;
 }
 
-#student-table-table th,
-#student-table-table td {
+#attendance-table th,
+#attendance-table td {
   padding: 10px; /* Increase padding for better spacing */
   text-align: center; /* Center-align text */
 }
 
-#student-table-table th {
+#attendance-table th {
   background-color: #012970;
   color: #f0f4fb;
   font-weight: bold;
 }
 
-#student-table-table th:first-child {
+#attendance-table th:first-child {
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
 }
 
-#student-table-table th:last-child {
+#attendance-table th:last-child {
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
 }
 
-#student-table-table td{
+#attendance-table td{
 background-color: #ffffff;
 color: #000;
 }
@@ -175,11 +175,11 @@ border-radius: 12px;
 #camera-feed{
 margin-top: 3%;
 border:1px solid #999;
-width: 70%;
-height: 78%;
+width: 75%;
+height: 90%;
 }
 
-#student-table-text{
+#attendance-text{
 position: fixed;
 top: 43%;
 right: 7%;

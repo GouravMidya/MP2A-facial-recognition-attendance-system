@@ -11,6 +11,7 @@ from flask_socketio import SocketIO, emit
 import base64
 import numpy as np
 from PIL import Image
+from datetime import datetime
 import pandas as pd
 #testing if i have access
 
@@ -36,6 +37,18 @@ db_cursor = db_connection.cursor()
 UPLOAD_FOLDER = 'facedb'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Excel Sheet :
+now= datetime.now()
+current_date=now.strftime("%Y-%m-%d")
+f= open(current_date+'.csv','w+',newline='')
+lnwriter = csv.writer(f)
+excel_filename=current_date+'.csv'
+
+# Fetch classroom data from the database
+def get_classrooms():
+    db_cursor.execute("SELECT ClassroomID, Year, Division, Branch FROM Classrooms")
+    classrooms = db_cursor.fetchall()
+    return classrooms
 
 # Declared Variables
 facedb_path = 'facedb'
@@ -45,8 +58,6 @@ presence_timers = {} # Maintain a dictionary to track the presence of individual
 global student_name
 global student_email
 global student_data
-
-
 
 
 #loads reference images for face recognition by iterating through files
@@ -72,39 +83,52 @@ def generate_frames():
             # Initialize a dictionary to keep track of faces in the current frame
             current_frame_faces = {}
 
-            #If there is a face match in current frame with reference images then show that there is a match to user
-            if is_match:
-                text = f"MATCH ({', '.join(matched_names)})"
-                cv2.putText(frame, text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            for name in matched_names:
+                # Concatenate matched names into a single string with newlines
+                matched_names_text = ' | '.join(matched_names)
 
-                for name in matched_names:
-                    if name not in presence_timers:
-                        presence_timers[name] = {'start_time': time.time(), 'duration': 0}
+                # Set the font scale for smaller text
+                font_scale = 0.8
+
+                # Get the size of the text
+                text_size = cv2.getTextSize(matched_names_text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 1)[0]
+
+                # Calculate the position for centering the text
+                text_x = (frame.shape[1] - text_size[0]) // 2
+                text_y = 30
+
+                # Put the text on the frame
+                cv2.putText(frame, matched_names_text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), 2)
+
+                if name not in presence_timers:
+                    presence_timers[name] = {'start_time': time.time(), 'duration': 0}
+                else:
+                    elapsed_time = time.time() - presence_timers[name]['start_time']
+
+                    # Check if a face has been detected for at least 5 seconds
+                    if elapsed_time >= 5:
+                        present.append(name)
+                        # Save the recognized face image
+                        face_locations = face_recognition.face_locations(frame)
+                        for face_location in face_locations:
+                            save_recognized_face(frame, face_location, name)
+
+                        f.flush()  # Flush the buffer to ensure the data is written immediately
+                        os.fsync(f.fileno())  # Ensure the data is written to disk
+                        del reference_encodings[name]
+                        presence_timers[name]['start_time'] = time.time()
+                        presence_timers[name]['duration'] = 0
                     else:
-                        elapsed_time = time.time() - presence_timers[name]['start_time']
+                        presence_timers[name]['duration'] = elapsed_time
 
-                        #Once a match lasts for 5 seconds the face is considered present and removed from reference images
-                        if elapsed_time >= 5:
-                            present.append(name)
-                            
-                            f.flush()  # Flush the buffer to ensure the data is written immediately
-                            os.fsync(f.fileno())  # Ensure the data is written to disk
-                            del reference_encodings[name]
-                            presence_timers[name]['start_time'] = time.time()
-                            presence_timers[name]['duration'] = 0
-                        else:
-                            presence_timers[name]['duration'] = elapsed_time
-
-                    # Mark this face as present in the current frame
-                    current_frame_faces[name] = True
+                # Mark this face as present in the current frame
+                current_frame_faces[name] = True
 
             # Reset timers for faces not detected in the current frame
             for name in presence_timers.keys():
                 if name not in current_frame_faces:
                     presence_timers[name]['start_time'] = time.time()
                     presence_timers[name]['duration'] = 0
-
-            # Other parts of your code...
 
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
@@ -121,7 +145,7 @@ def generate_frames():
 def recognize_face(frame):
     # Find face locations in the frame using the HOG model.
     face_locations = face_recognition.face_locations(frame, model="hog")
-    
+
     # If no face locations are found, return no recognition.
     if not face_locations:
         return False, []
@@ -130,18 +154,17 @@ def recognize_face(frame):
     face_encodings = face_recognition.face_encodings(frame, face_locations)
     recognized_names = []
 
-    # Compare the face encodings to reference encodings to recognize faces.
-    for encoding in face_encodings:
+    for i, encoding in enumerate(face_encodings):
         for name, reference_encoding in reference_encodings.items():
             result = face_recognition.compare_faces([reference_encoding], encoding)
-            
+
             # If a match is found, add the recognized name to the list.
             if result[0]:
                 recognized_names.append(name)
 
+
     # Return True if any faces were recognized and the recognized names.
     return bool(recognized_names), recognized_names
-
 
 
 def face_recognition_worker(fi, fl):
@@ -165,6 +188,108 @@ def face_recognition_worker(fi, fl):
 
                  # Send the cropped face region to the output queue.
                 fl.send(small_frame_c)
+
+
+def update_attendance(student_id):
+    db_cursor.execute("UPDATE Students SET Attendance = Attendance + 1 WHERE StudentID = %s", (student_id,))
+    db_connection.commit()
+    print('Attendance updated for StudentID', student_id)
+        
+
+def submit_student():
+    if request.method == 'POST':
+        student_name = request.form.get('studentName')
+        student_email = request.form.get('studentEmail')
+
+        session['student_name'] = student_name
+        session['student_email'] = student_email
+
+        # Get the uploaded image data
+        student_image = request.form.get('studentImage')  # This assumes that the image data is sent as part of the form data
+
+        # Insert the student data into the database
+        db_cursor.execute("INSERT INTO Students (FullName, Email) VALUES (%s, %s)",
+                           (student_name, student_email))
+        db_connection.commit()
+
+        # You can add any additional logic or redirects here
+
+        return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
+
+    # Handle GET request or any other cases
+    return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
+
+
+
+#add recognized image to folder
+
+def save_recognized_face(frame, face_location, name):
+    top, right, bottom, left = face_location
+    # Crop the face from the frame
+    face_image = frame
+    
+    # Define a directory to save the recognized face images (e.g., 'recognized_faces')
+    recognized_faces_dir = 'recognized_faces'
+    
+    if not os.path.exists(recognized_faces_dir):
+        os.makedirs(recognized_faces_dir)
+    
+    # Construct the file path for the saved image
+    image_filename = f'{name}.jpg'
+    image_path = os.path.join(recognized_faces_dir, image_filename)
+    
+    # Save the recognized face image
+    cv2.imwrite(image_path, face_image)
+    
+    # Return the image path
+    return image_path
+
+    
+
+# In your Flask application
+
+@socketio.on('update_present_request')
+def handle_update_present_request():
+    emit('update_present', {'present': present})
+
+
+# Save image in Folder
+
+def save_face_from_base64(image_data):
+    try:
+        sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
+        db_cursor.execute(sql_query)
+        student_data = db_cursor.fetchall()
+        for student_record in student_data:
+            id=student_record[0]
+            student_name = student_record[1]
+            student_email = student_record[2]
+            image_name = student_record[3]
+
+        if not student_name or not student_email:
+            # Handle the case where student_name and student_email are not available
+            print('Missing student_name or student_email in the session')
+            return
+
+        # Decode the base64 image data
+        image_data_decoded = base64.b64decode(image_data.split(',')[1])
+
+        # Save the image directly without further processing
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id}.png"), 'wb') as img_file:
+            img_file.write(image_data_decoded)
+
+        # Update the "image_name" field in the database
+        db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", (student_email, student_name))
+        id = db_cursor.fetchone()
+        image_name = f"{student_name}_{id[0]}"
+        db_cursor.execute("UPDATE Students SET image_name = %s WHERE StudentID = %s", (image_name, id[0]))
+        db_connection.commit()
+
+        print('Face saved:', image_name)
+
+    except Exception as e:
+        print('Error processing face:', str(e))
+
 
 
 if __name__ == "__main__":
@@ -240,83 +365,6 @@ if __name__ == "__main__":
         process.terminate()
 
 
-def update_attendance(student_id):
-    db_cursor.execute("UPDATE Students SET Attendance = Attendance + 1 WHERE StudentID = %s", (student_id,))
-    db_connection.commit()
-    print('Attendance updated for StudentID', student_id)
-        
-
-
-
-def submit_student():
-    if request.method == 'POST':
-        student_name = request.form.get('studentName')
-        student_email = request.form.get('studentEmail')
-
-        session['student_name'] = student_name
-        session['student_email'] = student_email
-
-        # Get the uploaded image data
-        student_image = request.form.get('studentImage')  # This assumes that the image data is sent as part of the form data
-
-        # Insert the student data into the database
-        db_cursor.execute("INSERT INTO Students (FullName, Email) VALUES (%s, %s)",
-                           (student_name, student_email))
-        db_connection.commit()
-
-        # You can add any additional logic or redirects here
-
-        return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
-
-    # Handle GET request or any other cases
-    return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
-
-
-
-# In your Flask application
-
-@socketio.on('update_present_request')
-def handle_update_present_request():
-    emit('update_present', {'present': present})
-
-
-
-def save_face_from_base64(image_data):
-    try:
-        sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
-        db_cursor.execute(sql_query)
-        student_data = db_cursor.fetchall()
-        for student_record in student_data:
-            id=student_record[0]
-            student_name = student_record[1]
-            student_email = student_record[2]
-            image_name = student_record[3]
-
-        if not student_name or not student_email:
-            # Handle the case where student_name and student_email are not available
-            print('Missing student_name or student_email in the session')
-            return
-
-        # Decode the base64 image data
-        image_data_decoded = base64.b64decode(image_data.split(',')[1])
-
-        # Save the image directly without further processing
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id}.png"), 'wb') as img_file:
-            img_file.write(image_data_decoded)
-
-        # Update the "image_name" field in the database
-        db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", (student_email, student_name))
-        id = db_cursor.fetchone()
-        image_name = f"{student_name}_{id[0]}"
-        db_cursor.execute("UPDATE Students SET image_name = %s WHERE StudentID = %s", (image_name, id[0]))
-        db_connection.commit()
-
-        print('Face saved:', image_name)
-
-    except Exception as e:
-        print('Error processing face:', str(e))
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
@@ -374,6 +422,14 @@ def dashboard():
     teacher_id = session.get('teacher_id', None)
     teacher_name = session.get('teacher_name',None)
 
+    sql_query = "SELECT ClassroomID, Year, Division FROM Classrooms"
+    db_cursor.execute(sql_query)
+    classrooms = db_cursor.fetchall()
+
+    sql_query = "SELECT name FROM subjects"
+    db_cursor.execute(sql_query)
+    subjects = db_cursor.fetchall()
+
     if request.method == 'POST':
         # Handle student form submission
         student_name = request.form['studentName']
@@ -394,7 +450,7 @@ def dashboard():
     video_feed = url_for('video_feed')
 
     return render_template('dashboard.html', message=session.pop('message', ''),
-                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data)
+                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data, classrooms=classrooms, subjects=subjects)
 
 
 @app.route('/attendance_summary')
@@ -473,3 +529,21 @@ def submit_student_route():
 @app.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
+
+@app.route('/viewattendance', methods=['POST'])
+def viewattendance():
+    classroom = request.form.get('classroom')
+    subject = request.form.get('subject')
+    date = request.form.get('date')
+    # Specify the path to your pre-existing CSV file
+    csv_filename = date + '.csv'
+
+    # Read data from the CSV file
+    attendance_data = []
+
+    with open(csv_filename, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            attendance_data.append(row)
+
+    return render_template('attendance_summary.html', attendance_data=attendance_data)
