@@ -83,39 +83,36 @@ def generate_frames():
             # Initialize a dictionary to keep track of faces in the current frame
             current_frame_faces = {}
 
-            #If there is a face match in current frame with reference images then show that there is a match to user
-            if is_match:
-                text = f"MATCH ({', '.join(matched_names)})"
-                cv2.putText(frame, text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            for name in matched_names:
+                if name not in presence_timers:
+                    presence_timers[name] = {'start_time': time.time(), 'duration': 0}
+                else:
+                    elapsed_time = time.time() - presence_timers[name]['start_time']
 
-                for name in matched_names:
-                    if name not in presence_timers:
-                        presence_timers[name] = {'start_time': time.time(), 'duration': 0}
+                    # Check if a face has been detected for at least 5 seconds
+                    if elapsed_time >= 5:
+                        present.append(name)
+                        # Save the recognized face image
+                        face_locations = face_recognition.face_locations(frame)
+                        for face_location in face_locations:
+                            save_recognized_face(frame, face_location, name)
+
+                        f.flush()  # Flush the buffer to ensure the data is written immediately
+                        os.fsync(f.fileno())  # Ensure the data is written to disk
+                        del reference_encodings[name]
+                        presence_timers[name]['start_time'] = time.time()
+                        presence_timers[name]['duration'] = 0
                     else:
-                        elapsed_time = time.time() - presence_timers[name]['start_time']
+                        presence_timers[name]['duration'] = elapsed_time
 
-                        #Once a match lasts for 5 seconds the face is considered present and removed from reference images
-                        if elapsed_time >= 5:
-                            present.append(name)
-                            
-                            f.flush()  # Flush the buffer to ensure the data is written immediately
-                            os.fsync(f.fileno())  # Ensure the data is written to disk
-                            del reference_encodings[name]
-                            presence_timers[name]['start_time'] = time.time()
-                            presence_timers[name]['duration'] = 0
-                        else:
-                            presence_timers[name]['duration'] = elapsed_time
-
-                    # Mark this face as present in the current frame
-                    current_frame_faces[name] = True
+                # Mark this face as present in the current frame
+                current_frame_faces[name] = True
 
             # Reset timers for faces not detected in the current frame
             for name in presence_timers.keys():
                 if name not in current_frame_faces:
                     presence_timers[name]['start_time'] = time.time()
                     presence_timers[name]['duration'] = 0
-
-            # Other parts of your code...
 
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
@@ -149,8 +146,6 @@ def recognize_face(frame):
             if result[0]:
                 recognized_names.append(name)
 
-                # Save the recognized face image
-                save_recognized_face(frame, face_locations[i], name)
 
     # Return True if any faces were recognized and the recognized names.
     return bool(recognized_names), recognized_names
@@ -215,7 +210,7 @@ def submit_student():
 def save_recognized_face(frame, face_location, name):
     top, right, bottom, left = face_location
     # Crop the face from the frame
-    face_image = frame[top:bottom, left:right]
+    face_image = frame
     
     # Define a directory to save the recognized face images (e.g., 'recognized_faces')
     recognized_faces_dir = 'recognized_faces'
@@ -277,6 +272,8 @@ def save_face_from_base64(image_data):
 
     except Exception as e:
         print('Error processing face:', str(e))
+
+
 
 if __name__ == "__main__":
     # Set the start method for multiprocessing to 'spawn'.
