@@ -84,8 +84,21 @@ def generate_frames():
             current_frame_faces = {}
 
             for name in matched_names:
-                text = f"MATCH ({', '.join(matched_names)})"
-                cv2.putText(frame, text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                # Concatenate matched names into a single string with newlines
+                matched_names_text = ' | '.join(matched_names)
+
+                # Set the font scale for smaller text
+                font_scale = 0.8
+
+                # Get the size of the text
+                text_size = cv2.getTextSize(matched_names_text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 1)[0]
+
+                # Calculate the position for centering the text
+                text_x = (frame.shape[1] - text_size[0]) // 2
+                text_y = 30
+
+                # Put the text on the frame
+                cv2.putText(frame, matched_names_text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), 2)
 
                 if name not in presence_timers:
                     presence_timers[name] = {'start_time': time.time(), 'duration': 0}
@@ -409,6 +422,14 @@ def dashboard():
     teacher_id = session.get('teacher_id', None)
     teacher_name = session.get('teacher_name',None)
 
+    sql_query = "SELECT ClassroomID, Year, Division FROM Classrooms"
+    db_cursor.execute(sql_query)
+    classrooms = db_cursor.fetchall()
+
+    sql_query = "SELECT name FROM subjects"
+    db_cursor.execute(sql_query)
+    subjects = db_cursor.fetchall()
+
     if request.method == 'POST':
         # Handle student form submission
         student_name = request.form['studentName']
@@ -429,7 +450,7 @@ def dashboard():
     video_feed = url_for('video_feed')
 
     return render_template('dashboard.html', message=session.pop('message', ''),
-                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data)
+                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data, classrooms=classrooms, subjects=subjects)
 
 
 @app.route('/attendance_summary')
@@ -508,3 +529,21 @@ def submit_student_route():
 @app.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
+
+@app.route('/viewattendance', methods=['POST'])
+def viewattendance():
+    classroom = request.form.get('classroom')
+    subject = request.form.get('subject')
+    date = request.form.get('date')
+    # Specify the path to your pre-existing CSV file
+    csv_filename = date + '.csv'
+
+    # Read data from the CSV file
+    attendance_data = []
+
+    with open(csv_filename, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            attendance_data.append(row)
+
+    return render_template('attendance_summary.html', attendance_data=attendance_data)
