@@ -60,8 +60,6 @@ global student_email
 global student_data
 
 
-
-
 #loads reference images for face recognition by iterating through files
 reference_encodings = load_reference_images()
 
@@ -134,7 +132,7 @@ def generate_frames():
 def recognize_face(frame):
     # Find face locations in the frame using the HOG model.
     face_locations = face_recognition.face_locations(frame, model="hog")
-    
+
     # If no face locations are found, return no recognition.
     if not face_locations:
         return False, []
@@ -143,18 +141,19 @@ def recognize_face(frame):
     face_encodings = face_recognition.face_encodings(frame, face_locations)
     recognized_names = []
 
-    # Compare the face encodings to reference encodings to recognize faces.
-    for encoding in face_encodings:
+    for i, encoding in enumerate(face_encodings):
         for name, reference_encoding in reference_encodings.items():
             result = face_recognition.compare_faces([reference_encoding], encoding)
-            
+
             # If a match is found, add the recognized name to the list.
             if result[0]:
                 recognized_names.append(name)
 
+                # Save the recognized face image
+                save_recognized_face(frame, face_locations[i], name)
+
     # Return True if any faces were recognized and the recognized names.
     return bool(recognized_names), recognized_names
-
 
 
 def face_recognition_worker(fi, fl):
@@ -179,6 +178,105 @@ def face_recognition_worker(fi, fl):
                  # Send the cropped face region to the output queue.
                 fl.send(small_frame_c)
 
+
+def update_attendance(student_id):
+    db_cursor.execute("UPDATE Students SET Attendance = Attendance + 1 WHERE StudentID = %s", (student_id,))
+    db_connection.commit()
+    print('Attendance updated for StudentID', student_id)
+        
+
+def submit_student():
+    if request.method == 'POST':
+        student_name = request.form.get('studentName')
+        student_email = request.form.get('studentEmail')
+
+        session['student_name'] = student_name
+        session['student_email'] = student_email
+
+        # Get the uploaded image data
+        student_image = request.form.get('studentImage')  # This assumes that the image data is sent as part of the form data
+
+        # Insert the student data into the database
+        db_cursor.execute("INSERT INTO Students (FullName, Email) VALUES (%s, %s)",
+                           (student_name, student_email))
+        db_connection.commit()
+
+        # You can add any additional logic or redirects here
+
+        return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
+
+    # Handle GET request or any other cases
+    return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
+
+
+
+#add recognized image to folder
+
+def save_recognized_face(frame, face_location, name):
+    top, right, bottom, left = face_location
+    # Crop the face from the frame
+    face_image = frame[top:bottom, left:right]
+    
+    # Define a directory to save the recognized face images (e.g., 'recognized_faces')
+    recognized_faces_dir = 'recognized_faces'
+    
+    if not os.path.exists(recognized_faces_dir):
+        os.makedirs(recognized_faces_dir)
+    
+    # Construct the file path for the saved image
+    image_filename = f'{name}.jpg'
+    image_path = os.path.join(recognized_faces_dir, image_filename)
+    
+    # Save the recognized face image
+    cv2.imwrite(image_path, face_image)
+    
+    # Return the image path
+    return image_path
+
+    
+
+# In your Flask application
+
+@socketio.on('update_present_request')
+def handle_update_present_request():
+    emit('update_present', {'present': present})
+
+
+
+def save_face_from_base64(image_data):
+    try:
+        sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
+        db_cursor.execute(sql_query)
+        student_data = db_cursor.fetchall()
+        for student_record in student_data:
+            id=student_record[0]
+            student_name = student_record[1]
+            student_email = student_record[2]
+            image_name = student_record[3]
+
+        if not student_name or not student_email:
+            # Handle the case where student_name and student_email are not available
+            print('Missing student_name or student_email in the session')
+            return
+
+        # Decode the base64 image data
+        image_data_decoded = base64.b64decode(image_data.split(',')[1])
+
+        # Save the image directly without further processing
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id}.png"), 'wb') as img_file:
+            img_file.write(image_data_decoded)
+
+        # Update the "image_name" field in the database
+        db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", (student_email, student_name))
+        id = db_cursor.fetchone()
+        image_name = f"{student_name}_{id[0]}"
+        db_cursor.execute("UPDATE Students SET image_name = %s WHERE StudentID = %s", (image_name, id[0]))
+        db_connection.commit()
+
+        print('Face saved:', image_name)
+
+    except Exception as e:
+        print('Error processing face:', str(e))
 
 if __name__ == "__main__":
     # Set the start method for multiprocessing to 'spawn'.
@@ -251,83 +349,6 @@ if __name__ == "__main__":
     # Cleanup: Terminate worker processes.
     for process in processes:
         process.terminate()
-
-
-def update_attendance(student_id):
-    db_cursor.execute("UPDATE Students SET Attendance = Attendance + 1 WHERE StudentID = %s", (student_id,))
-    db_connection.commit()
-    print('Attendance updated for StudentID', student_id)
-        
-
-
-
-def submit_student():
-    if request.method == 'POST':
-        student_name = request.form.get('studentName')
-        student_email = request.form.get('studentEmail')
-
-        session['student_name'] = student_name
-        session['student_email'] = student_email
-
-        # Get the uploaded image data
-        student_image = request.form.get('studentImage')  # This assumes that the image data is sent as part of the form data
-
-        # Insert the student data into the database
-        db_cursor.execute("INSERT INTO Students (FullName, Email) VALUES (%s, %s)",
-                           (student_name, student_email))
-        db_connection.commit()
-
-        # You can add any additional logic or redirects here
-
-        return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
-
-    # Handle GET request or any other cases
-    return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
-
-
-
-# In your Flask application
-
-@socketio.on('update_present_request')
-def handle_update_present_request():
-    emit('update_present', {'present': present})
-
-
-
-def save_face_from_base64(image_data):
-    try:
-        sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
-        db_cursor.execute(sql_query)
-        student_data = db_cursor.fetchall()
-        for student_record in student_data:
-            id=student_record[0]
-            student_name = student_record[1]
-            student_email = student_record[2]
-            image_name = student_record[3]
-
-        if not student_name or not student_email:
-            # Handle the case where student_name and student_email are not available
-            print('Missing student_name or student_email in the session')
-            return
-
-        # Decode the base64 image data
-        image_data_decoded = base64.b64decode(image_data.split(',')[1])
-
-        # Save the image directly without further processing
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id}.png"), 'wb') as img_file:
-            img_file.write(image_data_decoded)
-
-        # Update the "image_name" field in the database
-        db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", (student_email, student_name))
-        id = db_cursor.fetchone()
-        image_name = f"{student_name}_{id[0]}"
-        db_cursor.execute("UPDATE Students SET image_name = %s WHERE StudentID = %s", (image_name, id[0]))
-        db_connection.commit()
-
-        print('Face saved:', image_name)
-
-    except Exception as e:
-        print('Error processing face:', str(e))
 
 
 
