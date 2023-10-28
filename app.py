@@ -13,15 +13,13 @@ import numpy as np
 from PIL import Image
 from datetime import datetime
 import pandas as pd
-#testing if i have access
-
-#Modularization
 from imagin import is_image_file,load_reference_images
 
 app = Flask(__name__)
 socketio = SocketIO(app)
-
 app.secret_key = 'your_secret_key_here'
+
+
 
 # Connect to MySQL (ensure MySQL server is running)
 db_connection = mysql.connector.connect(
@@ -30,12 +28,15 @@ db_connection = mysql.connector.connect(
     password="20032003",
     database="attendify"
 )
-
 db_cursor = db_connection.cursor()
 
 
+
+# Defining a global variable for location of photos 
 UPLOAD_FOLDER = 'facedb'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
 
 # Excel Sheet :
 now= datetime.now()
@@ -44,13 +45,9 @@ f= open(current_date+'.csv','w+',newline='')
 lnwriter = csv.writer(f)
 excel_filename=current_date+'.csv'
 
-# Fetch classroom data from the database
-def get_classrooms():
-    db_cursor.execute("SELECT ClassroomID, Year, Division, Branch FROM Classrooms")
-    classrooms = db_cursor.fetchall()
-    return classrooms
 
-# Declared Variables
+
+# Declared Global Variables
 facedb_path = 'facedb'
 reference_encodings = {}
 present = []
@@ -58,12 +55,12 @@ presence_timers = {} # Maintain a dictionary to track the presence of individual
 global student_name
 global student_email
 global student_data
-
-
-#loads reference images for face recognition by iterating through files
-reference_encodings = load_reference_images()
-
+reference_encodings = load_reference_images() #loads reference images for face recognition by iterating through files
 presence_timers = {} 
+
+
+
+# Function for generating Frames 
 
 def generate_frames():
     global present
@@ -142,6 +139,9 @@ def generate_frames():
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
+
+# Function for Face Recognition
+
 def recognize_face(frame):
     # Find face locations in the frame using the HOG model.
     face_locations = face_recognition.face_locations(frame, model="hog")
@@ -167,6 +167,9 @@ def recognize_face(frame):
     return bool(recognized_names), recognized_names
 
 
+
+# Function for face recog workers
+
 def face_recognition_worker(fi, fl):
 
     #Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
@@ -190,11 +193,17 @@ def face_recognition_worker(fi, fl):
                 fl.send(small_frame_c)
 
 
+
+# Function to Update Student Attendance
+
 def update_attendance(student_id):
     db_cursor.execute("UPDATE Students SET Attendance = Attendance + 1 WHERE StudentID = %s", (student_id,))
     db_connection.commit()
     print('Attendance updated for StudentID', student_id)
         
+
+
+# Function to Submit Student details :
 
 def submit_student():
     if request.method == 'POST':
@@ -221,7 +230,7 @@ def submit_student():
 
 
 
-#add recognized image to folder
+# Function to add recognized image to folder
 
 def save_recognized_face(frame, face_location, name):
     top, right, bottom, left = face_location
@@ -246,11 +255,12 @@ def save_recognized_face(frame, face_location, name):
 
     
 
-# In your Flask application
+# Socket :
 
 @socketio.on('update_present_request')
 def handle_update_present_request():
     emit('update_present', {'present': present})
+
 
 
 # Save image in Folder
@@ -291,6 +301,8 @@ def save_face_from_base64(image_data):
         print('Error processing face:', str(e))
 
 
+
+# Main Function Begins Here :
 
 if __name__ == "__main__":
     # Set the start method for multiprocessing to 'spawn'.
@@ -370,7 +382,11 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 
-''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+# ALL ROUTES DEFINED HERE : --
+
+
 
 # Login Page or Landing page 
 @app.route('/', methods=['GET', 'POST'])
@@ -394,6 +410,8 @@ def index():
 
     return render_template('index.html')
 
+
+
 # Signup Page
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -415,21 +433,20 @@ def signup():
 
     return render_template('index.html')
 
+
+
 # Dashboard
 @app.route('/dashboard',  methods=['GET', 'POST'])
 def dashboard():
     # Retrieve TeacherID from the session
     teacher_id = session.get('teacher_id', None)
     teacher_name = session.get('teacher_name',None)
-
     sql_query = "SELECT ClassroomID, Year, Division FROM Classrooms"
     db_cursor.execute(sql_query)
     classrooms = db_cursor.fetchall()
-
     sql_query = "SELECT name FROM subjects"
     db_cursor.execute(sql_query)
     subjects = db_cursor.fetchall()
-
     if request.method == 'POST':
         # Handle student form submission
         student_name = request.form['studentName']
@@ -437,12 +454,6 @@ def dashboard():
         # Save the student details to the database
         db_cursor.execute("INSERT INTO Students (FullName, Email  ) VALUES (%s, %s)",(student_name, student_email))
         db_connection.commit()
-
-
-    # Pass the success message and TeacherID to the template
-    #return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id,teacher_name=teacher_name,classrooms_json=json.dumps(classrooms))
-    
-    
     sql_query = "SELECT StudentID, FullName, Email, image_name,Attendance,TotalAttendance FROM Students"
     db_cursor.execute(sql_query)
     student_data = db_cursor.fetchall()
@@ -453,6 +464,8 @@ def dashboard():
                            teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data, classrooms=classrooms, subjects=subjects)
 
 
+
+# Attendance Summary
 @app.route('/attendance_summary')
 def attendance_summary():
     # Read data from the CSV file
@@ -461,15 +474,9 @@ def attendance_summary():
         reader = csv.reader(csvfile)
         for row in reader:
             attendance_data.append(row)
-
-    
-
-    # Student Data for Attendance report
-    # Fetch student data from the database
     sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
     db_cursor.execute(sql_query)
     student_data = db_cursor.fetchall()
-
     current_date = datetime.now().strftime("%Y-%m-%d")
     csv_filename = f"{current_date}.csv"
     csv_header = ["StudentID", "Name", "Email", "Status"]
@@ -492,44 +499,44 @@ def attendance_summary():
             csv_writer.writerow(student_with_status)
             csvfile.flush()  # Flush the buffer to ensure the data is written immediately
             os.fsync(csvfile.fileno())  # Ensure the data is written to disk
-
     # Read data from the updated CSV file
     attendance_data = []
     with open(csv_filename, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             attendance_data.append(row)
-
     return render_template('attendance_summary.html', attendance_data=attendance_data)
 
+
+# Video Feed
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-# REST API route to save the image
+# ADD STUDENT ROUTES(2) :
+# API route to save the image from addstudent
 @app.route('/save-image', methods=['POST'])
 def save_image():
     try:
         data = request.get_json()
         image_data = data.get('imageData')
-
         # Call the save_face_from_base64 function
         save_face_from_base64(image_data)
-
         return jsonify({'status': 'success'})
     except Exception as e:
         print('Error saving image:', str(e))
         return jsonify({'status': 'error'})
 
+
+# Submit Student data from Add student
 @app.route('/submit-student', methods=['POST'])
 def submit_student_route():
     return submit_student()
 
-@app.route('/about', methods=['GET'])
-def about():
-    return render_template('about.html')
 
+
+# View Attendance 
 @app.route('/viewattendance', methods=['POST'])
 def viewattendance():
     classroom = request.form.get('classroom')
@@ -537,13 +544,19 @@ def viewattendance():
     date = request.form.get('date')
     # Specify the path to your pre-existing CSV file
     csv_filename = date + '.csv'
-
     # Read data from the CSV file
     attendance_data = []
-
     with open(csv_filename, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             attendance_data.append(row)
 
     return render_template('attendance_summary.html', attendance_data=attendance_data)
+
+
+
+# About Page Route
+@app.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html')
+
