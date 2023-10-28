@@ -1,5 +1,5 @@
 # Importing all necessary modules
-from flask import Flask, render_template, Response, json, render_template, request, flash, redirect, url_for,session, jsonify
+from flask import Flask, render_template, Response, render_template, request, redirect, url_for,session, jsonify
 import cv2
 import csv
 import face_recognition
@@ -10,11 +10,9 @@ import multiprocessing
 import mysql.connector
 from flask_socketio import SocketIO, emit
 import base64
-import numpy as np
-from PIL import Image
 from datetime import datetime
-import pandas as pd
-from imagin import is_image_file,load_reference_images
+from imagin import load_reference_images
+import gc
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -373,6 +371,15 @@ if __name__ == "__main__":
     # Cleanup: Terminate worker processes.
     for process in processes:
         process.terminate()
+    
+    # Release the camera
+    camera.release()
+        # Close all OpenCV windows
+    cv2.destroyAllWindows()
+    db_connection.close()
+    present.clear()
+    reference_encodings.clear()
+
 
 
 
@@ -436,7 +443,6 @@ def signup():
 # Dashboard
 @app.route('/dashboard',  methods=['GET', 'POST'])
 def dashboard():
-    reference_encodings = load_reference_images()
     # Retrieve TeacherID from the session
     teacher_id = session.get('teacher_id', None)
     teacher_name = session.get('teacher_name',None)
