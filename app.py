@@ -1,3 +1,4 @@
+# Importing all necessary modules
 from flask import Flask, render_template, Response, json, render_template, request, flash, redirect, url_for,session, jsonify
 import cv2
 import csv
@@ -56,15 +57,12 @@ global student_name
 global student_email
 global student_data
 reference_encodings = load_reference_images() #loads reference images for face recognition by iterating through files
-presence_timers = {} 
 
 
 
 # Function for generating Frames 
 
 def generate_frames():
-    global present
-
     #Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
     camera = cv2.VideoCapture(0)
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
@@ -438,6 +436,7 @@ def signup():
 # Dashboard
 @app.route('/dashboard',  methods=['GET', 'POST'])
 def dashboard():
+    reference_encodings = load_reference_images()
     # Retrieve TeacherID from the session
     teacher_id = session.get('teacher_id', None)
     teacher_name = session.get('teacher_name',None)
@@ -461,7 +460,7 @@ def dashboard():
     video_feed = url_for('video_feed')
 
     return render_template('dashboard.html', message=session.pop('message', ''),
-                           teacher_id=teacher_id, teacher_name=teacher_name, video_feed=video_feed, present=present,student_data=student_data, classrooms=classrooms, subjects=subjects)
+                           teacher_id=teacher_id, teacher_name=teacher_name, reference_encodings=reference_encodings,video_feed=video_feed, present=present,student_data=student_data, classrooms=classrooms, subjects=subjects)
 
 
 
@@ -479,7 +478,7 @@ def attendance_summary():
     student_data = db_cursor.fetchall()
     current_date = datetime.now().strftime("%Y-%m-%d")
     csv_filename = f"{current_date}.csv"
-    csv_header = ["StudentID", "Name", "Email", "Status"]
+    open(csv_filename, 'w', newline='')
     db_cursor.execute("UPDATE Students SET TotalAttendance = TotalAttendance + 1")
     db_connection.commit()
     for student_record in student_data:
@@ -505,13 +504,16 @@ def attendance_summary():
         reader = csv.reader(csvfile)
         for row in reader:
             attendance_data.append(row)
+    present.clear()  # Clear the list of present students
     return render_template('attendance_summary.html', attendance_data=attendance_data)
+
 
 
 # Video Feed
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 
 # ADD STUDENT ROUTES(2) :
@@ -527,6 +529,7 @@ def save_image():
     except Exception as e:
         print('Error saving image:', str(e))
         return jsonify({'status': 'error'})
+
 
 
 # Submit Student data from Add student
