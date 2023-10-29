@@ -205,7 +205,7 @@ function deleteNote(noteId) {
             .catch(error => console.error('Error saving image:', error));
             alert("Student added successfully!");
             document.getElementById("addStudentContentP2").style.display = "none";
-            document.getElementById("addStudentContentP1").style.display = "block";
+            document.getElementById("dashboardContent").style.display = "block";
         }
 
 
