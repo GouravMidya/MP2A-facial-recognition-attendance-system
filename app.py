@@ -300,7 +300,7 @@ def save_face_from_base64(image_data):
 def generate_csv_filename(classroom, subject):
     now = datetime.now()
     current_time = now.strftime("%Y-%m-%d")  # Format the current time as a string
-    filename = f"{current_time}_{classroom}_{subject}.csv"
+    filename = f"{current_time}-{classroom}-{subject}.csv"
     with open(filename, 'w', newline='') as csvfile:
         # Create a CSV writer
         csv_writer = csv.writer(csvfile)
