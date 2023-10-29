@@ -83,20 +83,19 @@
         <h1 id="takeattendance-header">Take Attendance</h1>
         <div class="takeattendance-box">
             <div id="takeattendanceContentP1">
-                <form id="attendance-form-take" action="/dashboard" method="POST">
-                        <label for="classroom">Select Class:</label>
-                        <select id="classroom" name="classroom">
+                        <label for="classroom1">Select Class:</label>
+                        <select id="classroom1" name="classroom1">
                             {% if classrooms %}
                                 {% for classroom in classrooms %}
-                                    <option value="{{ classroom[0] }}">{{ classroom[2] }}</option>
+                                    <option value="{{ classroom[2] }}">{{ classroom[2] }}</option>
                                 {% endfor %}
                             {% else %}
                                 <option value="">No classrooms available</option>
                             {% endif %}                
                         </select>
                         <br>
-                        <label for="subject">Select Subject:</label>
-                        <select id="subject" name="subject">
+                        <label for="subject1">Select Subject:</label>
+                        <select id="subject1" name="subject1">
                             {% if subjects %}
                                 {% for subject in subjects %}
                                     <option value="{{ subject[0] }}">{{ subject[0] }}</option>
@@ -108,7 +107,6 @@
                         <br>
                         <button type="submit" id="startAttendance">Start Attendance</button>
     
-                    </form>
             </div>
             <div id="takeattendanceContentP2" >
                     <div id="camera-feed" style="margin-top: -0.5%;float: left; width: 70%; height: 60vh;">

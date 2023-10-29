@@ -286,10 +286,23 @@ function showP2Section() {
     document.getElementById('takeattendanceContentP2').style.display = 'block';
 }
 
-// Attach the form submission function to the form's submit event
-document.getElementById('attendance-form-take').addEventListener('submit', function (event) {
-    event.preventDefault();
-    // Assuming you have validation logic here
-    // If validation passes, show P2 section
-    showP2Section();
+$(document).ready(function () {
+    $("#startAttendance").click(function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        var classroom = $("#classroom1").val();
+        var subject = $("#subject1").val();
+
+        $.ajax({
+            type: 'POST',
+            url: '/dashboard', // Update the URL to the appropriate endpoint
+            data: { classroom: classroom, subject: subject },
+            success: function (response) {
+                // Handle the response if needed
+                console.log("Data sent to dashboard: ", classroom, subject);
+            }
+        });
+        document.getElementById('takeattendanceContentP1').style.display = 'none';
+        document.getElementById('takeattendanceContentP2').style.display = 'block';
+    });
 });

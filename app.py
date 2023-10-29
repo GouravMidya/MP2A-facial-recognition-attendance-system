@@ -469,21 +469,23 @@ def dashboard():
     
     sql_query = "SELECT name FROM subjects"
     db_cursor.execute(sql_query)
-    subjects = db_cursor.fetchall()
-    if request.method == 'POST':
-        classroom = request.form.get('classroom')
-        subject = request.form.get('subject')
-        excel_filename = generate_csv_filename(classroom, subject)
-        session['excel_filename'] = excel_filename  # Store it in the session
-        current_section = "P2"
-        
-        
+    subjects = db_cursor.fetchall()    
             
     sql_query = "SELECT StudentID, FullName, Email, image_name, Attendance, TotalAttendance FROM Students"
     db_cursor.execute(sql_query)
     student_data = db_cursor.fetchall()
     # Corrected line in your Flask application
     video_feed = url_for('video_feed')
+
+
+    if request.method == 'POST':
+        classroom = request.form.get('classroom')
+        print(classroom)
+        subject = request.form.get('subject')
+        print(subject)
+        excel_filename = generate_csv_filename(classroom, subject)
+        session['excel_filename'] = excel_filename  # Store it in the session
+        current_section = "P2"
 
     return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id, teacher_name=teacher_name, reference_encodings=reference_encodings, video_feed=video_feed, present=present, student_data=student_data, classrooms=classrooms, subjects=subjects, current_section=current_section)
 
