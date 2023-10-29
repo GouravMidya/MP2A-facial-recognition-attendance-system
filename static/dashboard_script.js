@@ -16,6 +16,7 @@ const viewstudentcontainer = document.getElementById("viewstudent-container");
 const addStudentContentP1 = document.getElementById("addStudentContentP1");
 const addStudentContentP2 = document.getElementById("addStudentContentP2");
 
+
 // Function to hide all content containers
 function hideAllContainers() {
     viewattendancecontainer.style.display = "none";
@@ -66,6 +67,9 @@ takeattendanceLink.addEventListener("click", function () {
 
     hideAllContainers();
     takeattendancecontainer.style.display = "block";
+    document.getElementById('takeattendanceContentP1').style.display = 'block';
+    document.getElementById('takeattendanceContentP2').style.display = 'none';
+    
 });
 
 addStudentLink.addEventListener("click", function () {
@@ -205,7 +209,7 @@ function deleteNote(noteId) {
             .catch(error => console.error('Error saving image:', error));
             alert("Student added successfully!");
             document.getElementById("addStudentContentP2").style.display = "none";
-            document.getElementById("dashboardContent").style.display = "block";
+            document.getElementById("addStudentContentP1").style.display = "block";
         }
 
 
@@ -267,3 +271,25 @@ function deleteNote(noteId) {
 }
 
 
+
+
+// Take attendance JS
+
+function showP1Section() {
+    document.getElementById('takeattendanceContentP1').style.display = 'block';
+    document.getElementById('takeattendanceContentP2').style.display = 'none';
+}
+
+// Function to show P2 section and hide P1 section
+function showP2Section() {
+    document.getElementById('takeattendanceContentP1').style.display = 'none';
+    document.getElementById('takeattendanceContentP2').style.display = 'block';
+}
+
+// Attach the form submission function to the form's submit event
+document.getElementById('attendance-form-take').addEventListener('submit', function (event) {
+    event.preventDefault();
+    // Assuming you have validation logic here
+    // If validation passes, show P2 section
+    showP2Section();
+});
