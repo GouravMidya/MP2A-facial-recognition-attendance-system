@@ -194,7 +194,6 @@ def face_recognition_worker(fi, fl):
 def update_attendance(student_id):
     db_cursor.execute("UPDATE Students SET Attendance = Attendance + 1 WHERE StudentID = %s", (student_id,))
     db_connection.commit()
-    print('Attendance updated for StudentID', student_id)
         
 
 
@@ -304,7 +303,6 @@ def generate_csv_filename(classroom, subject):
     with open(filename, 'w', newline='') as csvfile:
         # Create a CSV writer
         csv_writer = csv.writer(csvfile)
-    print(filename)
     return filename
 
 
