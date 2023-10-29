@@ -470,12 +470,12 @@ def dashboard():
     sql_query = "SELECT name FROM subjects"
     db_cursor.execute(sql_query)
     subjects = db_cursor.fetchall()
-    
-    classroom = request.form.get('classroom')
-    subject = request.form.get('subject')
-    excel_filename = generate_csv_filename(classroom, subject)
-    session['excel_filename'] = excel_filename  # Store it in the session
-    current_section = "P2"
+    if request.method == 'POST':
+        classroom = request.form.get('classroom')
+        subject = request.form.get('subject')
+        excel_filename = generate_csv_filename(classroom, subject)
+        session['excel_filename'] = excel_filename  # Store it in the session
+        current_section = "P2"
         
         
             

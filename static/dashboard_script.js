@@ -15,8 +15,6 @@ const addStudentContent = document.getElementById("addStudentContent");
 const viewstudentcontainer = document.getElementById("viewstudent-container");
 const addStudentContentP1 = document.getElementById("addStudentContentP1");
 const addStudentContentP2 = document.getElementById("addStudentContentP2");
-const takeattendanceContentP1 = document.getElementById("takeAttendanceContentP1");
-const takeattendanceContentP2 = document.getElementById("takeAttendanceContentP2");
 
 
 // Function to hide all content containers
@@ -69,6 +67,9 @@ takeattendanceLink.addEventListener("click", function () {
 
     hideAllContainers();
     takeattendancecontainer.style.display = "block";
+    document.getElementById('takeattendanceContentP1').style.display = 'block';
+    document.getElementById('takeattendanceContentP2').style.display = 'none';
+    
 });
 
 addStudentLink.addEventListener("click", function () {
