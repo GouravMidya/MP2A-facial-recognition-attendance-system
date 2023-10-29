@@ -442,11 +442,15 @@ def signup():
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
 <<<<<<< HEAD
+<<<<<<< HEAD
     global excel_filename
     
     # Initialize current_section with a default value
     current_section = "P1"
 
+=======
+    reference_encodings = load_reference_images()
+>>>>>>> parent of 49e3acf (Debug)
 =======
     reference_encodings = load_reference_images()
 >>>>>>> parent of 49e3acf (Debug)
