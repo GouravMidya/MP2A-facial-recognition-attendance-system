@@ -232,7 +232,8 @@ function deleteNote(noteId) {
     //Submit and next page
     
     // JavaScript function to submit the form and show P2
-    function submitFormAndShowP2() {
+    // JavaScript function to submit the form and show P2
+function submitFormAndShowP2() {
     const studentName = document.getElementById("studentName").value;
     const studentEmail = document.getElementById("studentEmail").value;
 
@@ -260,9 +261,33 @@ function deleteNote(noteId) {
         document.getElementById("studentName").value = "";
         document.getElementById("studentEmail").value = "";
 
-        // Switch to the second part of the "Add Student" content (addStudentContentP2)
-        addStudentContentP1.style.display = "none";
-        addStudentContentP2.style.display = "block";
+        // Switch to the second part of the "Add Student" content (takeattendanceContentP2)
+        showP2Section(); // This is where we show P2 after the student is added
     })
 }
 
+function showP1Section() {
+    document.getElementById('takeattendanceContentP1').style.display = 'block';
+    document.getElementById('takeattendanceContentP2').style.display = 'none';
+}
+
+// Function to show P2 section and hide P1 section
+function showP2Section() {
+    document.getElementById('takeattendanceContentP1').style.display = 'none';
+    document.getElementById('takeattendanceContentP2').style.display = 'block';
+}
+
+// Attach the form submission function to the form's submit event
+document.getElementById('attendance-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    // Assuming you have validation logic here
+    // If validation passes, show P2 section
+    showP2Section();
+});
+
+// Attach a click event listener to the "Start Attendance" button
+document.getElementById('startAttendance').addEventListener('click', function (event) {
+    event.preventDefault();
+    // Show P2 section when the "Start Attendance" button is clicked
+    showP2Section();
+});
