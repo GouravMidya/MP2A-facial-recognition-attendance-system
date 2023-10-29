@@ -40,9 +40,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Excel Sheet :
 now= datetime.now()
 current_date=now.strftime("%Y-%m-%d")
-f= open(current_date+'.csv','w+',newline='')
-lnwriter = csv.writer(f)
-excel_filename=current_date+'.csv'
 
 
 
@@ -55,13 +52,17 @@ global student_name
 global student_email
 global student_data
 reference_encodings = load_reference_images() #loads reference images for face recognition by iterating through files
-
-
+current_section = "P1"
+global excel_filename
+excel_filename= None
+f= open(current_date+'.csv','w+',newline='')
+lnwriter = csv.writer(f)
 
 # Function for generating Frames 
 
 def generate_frames():
     #Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
+    
     camera = cv2.VideoCapture(0)
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
@@ -105,9 +106,7 @@ def generate_frames():
                         face_locations = face_recognition.face_locations(frame)
                         for face_location in face_locations:
                             save_recognized_face(frame, face_location, name)
-
-                        f.flush()  # Flush the buffer to ensure the data is written immediately
-                        os.fsync(f.fileno())  # Ensure the data is written to disk
+                        
                         del reference_encodings[name]
                         presence_timers[name]['start_time'] = time.time()
                         presence_timers[name]['duration'] = 0
@@ -298,6 +297,18 @@ def save_face_from_base64(image_data):
 
 
 
+def generate_csv_filename(classroom, subject):
+    now = datetime.now()
+    current_time = now.strftime("%Y-%m-%d")  # Format the current time as a string
+    filename = f"{current_time}_{classroom}_{subject}.csv"
+    with open(filename, 'w', newline='') as csvfile:
+        # Create a CSV writer
+        csv_writer = csv.writer(csvfile)
+    print(filename)
+    return filename
+
+
+
 # Main Function Begins Here :
 
 if __name__ == "__main__":
@@ -441,50 +452,63 @@ def signup():
 
 
 # Dashboard
-@app.route('/dashboard',  methods=['GET', 'POST'])
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
+    global excel_filename
+    
+    # Initialize current_section with a default value
+    current_section = "P1"
+
     # Retrieve TeacherID from the session
     teacher_id = session.get('teacher_id', None)
-    teacher_name = session.get('teacher_name',None)
+    teacher_name = session.get('teacher_name', None)
+
     sql_query = "SELECT ClassroomID, Year, Division FROM Classrooms"
     db_cursor.execute(sql_query)
     classrooms = db_cursor.fetchall()
+    
     sql_query = "SELECT name FROM subjects"
     db_cursor.execute(sql_query)
     subjects = db_cursor.fetchall()
-    if request.method == 'POST':
-        # Handle student form submission
-        student_name = request.form['studentName']
-        student_email = request.form['studentEmail']
-        # Save the student details to the database
-        db_cursor.execute("INSERT INTO Students (FullName, Email  ) VALUES (%s, %s)",(student_name, student_email))
-        db_connection.commit()
-    sql_query = "SELECT StudentID, FullName, Email, image_name,Attendance,TotalAttendance FROM Students"
+    
+    classroom = request.form.get('classroom')
+    subject = request.form.get('subject')
+    excel_filename = generate_csv_filename(classroom, subject)
+    session['excel_filename'] = excel_filename  # Store it in the session
+    current_section = "P2"
+        
+        
+            
+    sql_query = "SELECT StudentID, FullName, Email, image_name, Attendance, TotalAttendance FROM Students"
     db_cursor.execute(sql_query)
     student_data = db_cursor.fetchall()
     # Corrected line in your Flask application
     video_feed = url_for('video_feed')
 
-    return render_template('dashboard.html', message=session.pop('message', ''),
-                           teacher_id=teacher_id, teacher_name=teacher_name, reference_encodings=reference_encodings,video_feed=video_feed, present=present,student_data=student_data, classrooms=classrooms, subjects=subjects)
+    return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id, teacher_name=teacher_name, reference_encodings=reference_encodings, video_feed=video_feed, present=present, student_data=student_data, classrooms=classrooms, subjects=subjects, current_section=current_section)
 
 
 
 # Attendance Summary
-@app.route('/attendance_summary')
+@app.route('/attendance_summary', methods=['GET', 'POST'])
 def attendance_summary():
-    # Read data from the CSV file
     attendance_data = []
-    with open(excel_filename, newline='') as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            attendance_data.append(row)
+    # Get the excel_filename from the session
+    excel_filename = session.get('excel_filename')
+    
+    # Check if excel_filename is available
+    if excel_filename:
+        # Proceed with processing and reading the CSV file
+        with open(excel_filename, newline='') as csvfile:  # Use 'r' for reading
+            reader = csv.reader(csvfile)  # Create a CSV reader
+
+            # Read data from the CSV file
+            for row in reader:
+                attendance_data.append(row)
+
     sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
     db_cursor.execute(sql_query)
     student_data = db_cursor.fetchall()
-    current_date = datetime.now().strftime("%Y-%m-%d")
-    csv_filename = f"{current_date}.csv"
-    open(csv_filename, 'w', newline='')
     db_cursor.execute("UPDATE Students SET TotalAttendance = TotalAttendance + 1")
     db_connection.commit()
     for student_record in student_data:
@@ -498,18 +522,20 @@ def attendance_summary():
         else:
             status = 'A'  # Mark the student as absent
             # Open the existing CSV file in append mode
-        with open(csv_filename, 'a', newline='') as csvfile:
+        with open(excel_filename, 'a', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
             student_with_status = [student_id, student_name, student_email, status]
             csv_writer.writerow(student_with_status)
             csvfile.flush()  # Flush the buffer to ensure the data is written immediately
             os.fsync(csvfile.fileno())  # Ensure the data is written to disk
+
     # Read data from the updated CSV file
-    attendance_data = []
-    with open(csv_filename, newline='') as csvfile:
-        reader = csv.reader(csvfile)
+    attendance_data = []  # You don't need to redefine this
+    with open(excel_filename, newline='') as csvfile:  # Use 'r' for reading
+        reader = csv.reader(csvfile)  # Create a CSV reader
         for row in reader:
             attendance_data.append(row)
+
     present.clear()  # Clear the list of present students
     return render_template('attendance_summary.html', attendance_data=attendance_data)
 
@@ -552,7 +578,7 @@ def viewattendance():
     subject = request.form.get('subject')
     date = request.form.get('date')
     # Specify the path to your pre-existing CSV file
-    csv_filename = date + '.csv'
+    csv_filename = date +'-'+classroom+'-'+subject+'.csv'
     # Read data from the CSV file
     attendance_data = []
     with open(csv_filename, newline='') as csvfile:

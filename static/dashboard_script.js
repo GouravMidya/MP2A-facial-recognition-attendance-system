@@ -15,6 +15,9 @@ const addStudentContent = document.getElementById("addStudentContent");
 const viewstudentcontainer = document.getElementById("viewstudent-container");
 const addStudentContentP1 = document.getElementById("addStudentContentP1");
 const addStudentContentP2 = document.getElementById("addStudentContentP2");
+const takeattendanceContentP1 = document.getElementById("takeAttendanceContentP1");
+const takeattendanceContentP2 = document.getElementById("takeAttendanceContentP2");
+
 
 // Function to hide all content containers
 function hideAllContainers() {
@@ -205,7 +208,7 @@ function deleteNote(noteId) {
             .catch(error => console.error('Error saving image:', error));
             alert("Student added successfully!");
             document.getElementById("addStudentContentP2").style.display = "none";
-            document.getElementById("dashboardContent").style.display = "block";
+            document.getElementById("addStudentContentP1").style.display = "block";
         }
 
 
@@ -232,8 +235,7 @@ function deleteNote(noteId) {
     //Submit and next page
     
     // JavaScript function to submit the form and show P2
-    // JavaScript function to submit the form and show P2
-function submitFormAndShowP2() {
+    function submitFormAndShowP2() {
     const studentName = document.getElementById("studentName").value;
     const studentEmail = document.getElementById("studentEmail").value;
 
@@ -261,10 +263,16 @@ function submitFormAndShowP2() {
         document.getElementById("studentName").value = "";
         document.getElementById("studentEmail").value = "";
 
-        // Switch to the second part of the "Add Student" content (takeattendanceContentP2)
-        showP2Section(); // This is where we show P2 after the student is added
+        // Switch to the second part of the "Add Student" content (addStudentContentP2)
+        addStudentContentP1.style.display = "none";
+        addStudentContentP2.style.display = "block";
     })
 }
+
+
+
+
+// Take attendance JS
 
 function showP1Section() {
     document.getElementById('takeattendanceContentP1').style.display = 'block';
@@ -278,16 +286,9 @@ function showP2Section() {
 }
 
 // Attach the form submission function to the form's submit event
-document.getElementById('attendance-form').addEventListener('submit', function (event) {
+document.getElementById('attendance-form-take').addEventListener('submit', function (event) {
     event.preventDefault();
     // Assuming you have validation logic here
     // If validation passes, show P2 section
-    showP2Section();
-});
-
-// Attach a click event listener to the "Start Attendance" button
-document.getElementById('startAttendance').addEventListener('click', function (event) {
-    event.preventDefault();
-    // Show P2 section when the "Start Attendance" button is clicked
     showP2Section();
 });
