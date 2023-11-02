@@ -292,11 +292,10 @@ $(document).ready(function () {
 
         var classroom = $("#classroom1").val();
         var subject = $("#subject1").val();
-        var timerval = 3;
         $.ajax({
             type: 'POST',
             url: '/dashboard', // Update the URL to the appropriate endpoint
-            data: { classroom: classroom, subject: subject, timerval: timerval },
+            data: { classroom: classroom, subject: subject},
             success: function (response) {
                 // Handle the response if needed
                 console.log("Data sent to dashboard: ", classroom, subject);

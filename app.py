@@ -51,7 +51,6 @@ presence_timers = {} # Maintain a dictionary to track the presence of individual
 global student_name
 global student_email
 global student_data
-reference_encodings = load_reference_images() #loads reference images for face recognition by iterating through files
 current_section = "P1"
 global excel_filename
 global path
@@ -59,21 +58,31 @@ path="cache"
 excel_filename= None
 f= open(current_date+'.csv','w+',newline='')
 lnwriter = csv.writer(f)
+global halt
+reference_encodings_loaded = False  # Add this global flag
 
 # Function for generating Frames 
 
 def generate_frames():
     #Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
-    
+    halt=3
     camera = cv2.VideoCapture(0)
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
     camera.set(cv2.CAP_PROP_FPS, 30)
+    global reference_encodings, reference_encodings_loaded
+    
     while True:
         success, frame = camera.read()
         if not success:
             break
         else:
+            if not reference_encodings_loaded:
+                present.clear()
+                print("H")
+                reference_encodings = load_reference_images()
+                reference_encodings_loaded = True
+
             is_match, matched_names = recognize_face(frame)
 
             # Initialize a dictionary to keep track of faces in the current frame
@@ -99,14 +108,13 @@ def generate_frames():
                 if name not in presence_timers:
                     presence_timers[name] = {'start_time': time.time(), 'duration': 0}
                 else:
-                    timerval = request.form.get('timerval')
-                    if timerval is None:
-                        elapsed_time = 60
-                    else:
-                        elapsed_time = time.time() - presence_timers[name]['start_time']
-                    # Check if a face has been detected for at least 5 seconds
-                    if elapsed_time >= 3:
+                    
+                    elapsed_time = time.time() - presence_timers[name]['start_time']
+                    # Check if a face has been detected for at least 7 seconds the first time the 3 seconds
+
+                    if elapsed_time >= halt:
                         present.append(name)
+                        halt=3
                         # Save the recognized face image
                         face_locations = face_recognition.face_locations(frame)
                         for face_location in face_locations:
@@ -396,6 +404,7 @@ def signup():
 # Dashboard
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
+    global reference_encodings_loaded
     global excel_filename
     global path
     # Initialize current_section with a default value
@@ -430,12 +439,15 @@ def dashboard():
         session['excel_filename'] = excel_filename  # Store it in the session
         current_section = "P2"
         path=current_date+"_"+classroom+"_"+subject
+        reference_encodings_loaded = False  # Reset the flag when classroom/subject changes
 
+        
     return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id, teacher_name=teacher_name, reference_encodings=reference_encodings, video_feed=video_feed, present=present, student_data=student_data, classrooms=classrooms, subjects=subjects, current_section=current_section)
 
 
 
 # Attendance Summary
+
 @app.route('/attendance_summary', methods=['GET', 'POST'])
 def attendance_summary():
     attendance_data = []
