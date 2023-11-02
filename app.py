@@ -100,7 +100,7 @@ def generate_frames():
                     elapsed_time = time.time() - presence_timers[name]['start_time']
 
                     # Check if a face has been detected for at least 5 seconds
-                    if elapsed_time >= 5:
+                    if elapsed_time >= 3:
                         present.append(name)
                         # Save the recognized face image
                         face_locations = face_recognition.face_locations(frame)
