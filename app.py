@@ -301,7 +301,7 @@ def save_face_from_base64(image_data):
 def generate_csv_filename(classroom, subject):
     now = datetime.now()
     current_time = now.strftime("%Y-%m-%d")  # Format the current time as a string
-    filename = f"{current_time}-{classroom}-{subject}.csv"
+    filename = f"Attendance_Records/{current_time}-{classroom}-{subject}.csv"
     with open(filename, 'w', newline='') as csvfile:
         # Create a CSV writer
         csv_writer = csv.writer(csvfile)
@@ -333,16 +333,6 @@ if __name__ == "__main__":
 
     # Start the application (e.g., a web-based video stream).
     app.run(debug=True, threaded=True)
-
-    frame_id = 0  # Initialize the frame ID counter.
-    fps_var = 0  # Initialize the FPS variable.
-
-        # Close all OpenCV windows
-    cv2.destroyAllWindows()
-    db_connection.close()
-    present.clear()
-    reference_encodings.clear()
-
 
 
 
