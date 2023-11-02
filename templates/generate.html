@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .header{
+            display: flex;
+            justify-content: space-between; /* Align items on both ends */
+            align-items: center; /* Vertically center items */
+            position : fixed;
+            top : 0;
+            left:0;
+            width: 100%;
+            /*border: 3px solid #73AD21;*/
+            font-weight: 700;
+            font-size: 30px;
+            padding : 1%;
+            background-color: #ffffff;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+          }
+
+        .header a{
+            text-decoration: none;
+            color: #012970;
+          }
+    </style>
+</head>
+<body>
+    
+    <div class="header">
+        <a href="/dashboard">Attendify</a>
+    </div>
+
+    <div class="content">
+        <h2>Combine Attendance</h2>
+        <form action="/combine" method="post">
+            <label for="class_select">Select Class:</label>
+            <select name="class" id="class_select">
+                <option value="A">A</option>
+                <option value="class2">B</option>
+                <!-- Add more class options as needed -->
+            </select>
+
+            <label for="subject_select">Select Subject:</label>
+            <select name="subject" id="subject_select">
+                <option value="DWM">DWM</option>
+                <option value="math">Math</option>
+                <option value="science">Science</option>
+                <!-- Add more subject options as needed -->
+            </select>
+
+            <button type="submit">Combine Attendance</button>
+        </form>
+    </div>
+
+</body>
+</html>

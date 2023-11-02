@@ -1,5 +1,5 @@
 # Importing all necessary modules
-from flask import Flask, render_template, Response, render_template, request, redirect, url_for,session, jsonify
+from flask import Flask, render_template, Response, render_template, request, redirect, url_for,session, jsonify,send_file, flash
 import cv2
 import csv
 import face_recognition
@@ -13,6 +13,8 @@ import base64
 from datetime import datetime
 from imagin import load_reference_images
 import gc
+import pandas as pd
+from io import BytesIO
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -552,3 +554,86 @@ def viewattendance():
 @app.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
+
+
+# Generate Reports
+def combine_attendance(class_name, subject_name):
+    # Define the directory where CSV files are stored
+    print("Hello Gourav")
+    data_dir = r"/Users/prathameshnaik/Desktop/MP2A-facial-recognition-attendance-system/Attendance_Records"  # Directory path of location where we are saving csv files
+
+    # List of CSV files for the selected class and subject
+    csv_files = []
+    for root, dirs, files in os.walk(data_dir):
+        for file in files:
+            # Check if the file name matches the pattern "date-class-subject.csv"
+            if file.endswith(f"-{class_name}-{subject_name}.csv"):
+                csv_files.append(os.path.join(root, file))
+    
+    if not csv_files:
+        return None  # No matching files found
+
+    # Create a dictionary to store attendance data
+    attendance_data = {}
+
+    for file in csv_files:
+        date = file.split("/")[-1].split(".")[0]  # Extract the date from the file name
+        df = pd.read_csv(file, header=None)  # Specify header=None to read without column headers
+
+        # Remove the image name column by dropping the last column
+        df = df.iloc[:, :-1]
+        name="Name"
+        # Rename the attendance status column with the date
+        df = df.rename(columns={df.columns[-1]: date})
+
+        # Set the index to the first column (studentid)
+        df = df.set_index(df.columns[0])
+
+        if date in attendance_data:
+            attendance_data[date] = pd.concat([attendance_data[date], df], axis=1, join="outer")
+        else:
+            attendance_data[date] = df
+
+    # Create a list of DataFrames and concatenate them by index
+    df_list = list(attendance_data.values())
+    combined_df = pd.concat(df_list, axis=1, join="outer")
+    
+    # Use groupby and aggregate to ensure that name and email columns appear only once
+    combined_df = combined_df.groupby(level=0, axis=1).first()
+    combined_df = combined_df.rename(columns={df.columns[0]: "Name"})
+    combined_df = combined_df.rename(columns={df.columns[1]: "Email"})
+
+        
+    return combined_df
+
+
+
+@app.route('/combine', methods=['POST'])
+def combine():
+    print("Hello")
+    class_name = request.form.get('class')
+    print(class_name)
+    subject_name = request.form.get('subject')
+    print(subject_name)
+    if class_name and subject_name:
+        combined_data = combine_attendance(class_name, subject_name)
+        print("Got data")
+        
+        if combined_data is not None:
+            # Convert the DataFrame to an Excel file
+            excel_output = BytesIO()
+            with pd.ExcelWriter(excel_output, engine='xlsxwriter') as writer:
+                combined_data.to_excel(writer, sheet_name='Combined Attendance', index=False)
+            excel_output.seek(0)
+
+            # Send the Excel file to the user for download
+            return send_file(excel_output, as_attachment=True, download_name=f"{class_name}_{subject_name}_attendance.xlsx")
+    print("HELLO")
+    flash("Please select a class and subject.")
+
+
+
+@app.route('/generate_reports')
+def generate_reports():
+    return render_template('generate.html')
+

@@ -8,6 +8,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
     <link rel="icon" type="image/png" href="./static/images/favicon.png">
 </head>
+<style>
+    button{
+background-color: #012970;
+color: #f0f4fb;
+margin-left: 5%;
+padding: 1%;
+border:1px solid #999;
+border-radius: 12px;
+}
+</style>
 <body>
     
     <div class="header">
@@ -39,7 +49,7 @@
         <li><a href="#" id="addStudentLink">Add Students</a></li>
         <li><a href="#" id="viewStudentLink">View Students</a></li>
         <li><a href="/about">About</a></li>
-
+        <li><a href="/generate_reports">Generate Reports</a></li>
     </ul>
 
 
@@ -83,6 +93,8 @@
         <h1 id="takeattendance-header">Take Attendance</h1>
         <div class="takeattendance-box">
             <div id="takeattendanceContentP1">
+                <table>
+                    <tr>
                         <label for="classroom1">Select Class:</label>
                         <select id="classroom1" name="classroom1">
                             {% if classrooms %}
@@ -93,7 +105,8 @@
                                 <option value="">No classrooms available</option>
                             {% endif %}                
                         </select>
-                        <br>
+                    </tr>
+                    <tr>
                         <label for="subject1">Select Subject:</label>
                         <select id="subject1" name="subject1">
                             {% if subjects %}
@@ -104,8 +117,9 @@
                                 <option value="">No Subject available</option>
                             {% endif %}                
                         </select>
-                        <br>
+                    </tr>
                         <button type="submit" id="startAttendance">Start Attendance</button>
+                </table>
     
             </div>
             <div id="takeattendanceContentP2" >
