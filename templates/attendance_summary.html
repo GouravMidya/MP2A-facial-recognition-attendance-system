@@ -28,8 +28,8 @@
                 <td>{{ record[1] }}</td>
                 <td>{{ record[2] }}</td>
                 <td>{{ record[3] }}</td>
-                <td><a href="./static/recognized_faces/{{record[4]}}.jpg" data-lightbox="{{record[4]}}">
-                    <img src="./static/recognized_faces/{{record[4]}}.jpg" alt="Absent" style="max-height: 40px;">
+                <td><a href="./static/recognized_faces/{{path}}/{{record[4]}}.jpg" data-lightbox="{{record[4]}}">
+                    <img src="./static/recognized_faces/{{path}}/{{record[4]}}.jpg" alt="Absent" style="max-height: 40px;">
                 </a>
                 </td>
             {% endfor %}

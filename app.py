@@ -54,6 +54,8 @@ global student_data
 reference_encodings = load_reference_images() #loads reference images for face recognition by iterating through files
 current_section = "P1"
 global excel_filename
+global path
+path="cache"
 excel_filename= None
 f= open(current_date+'.csv','w+',newline='')
 lnwriter = csv.writer(f)
@@ -232,7 +234,7 @@ def save_recognized_face(frame, face_location, name):
     face_image = frame
     
     # Define a directory to save the recognized face images (e.g., 'recognized_faces')
-    recognized_faces_dir = './static/recognized_faces/'
+    recognized_faces_dir = './static/recognized_faces/'+path
     
     if not os.path.exists(recognized_faces_dir):
         os.makedirs(recognized_faces_dir)
@@ -434,6 +436,7 @@ def dashboard():
         excel_filename = generate_csv_filename(classroom, subject)
         session['excel_filename'] = excel_filename  # Store it in the session
         current_section = "P2"
+        path=current_date+"_"+classroom+"_"+subject
 
     return render_template('dashboard.html', message=session.pop('message', ''), teacher_id=teacher_id, teacher_name=teacher_name, reference_encodings=reference_encodings, video_feed=video_feed, present=present, student_data=student_data, classrooms=classrooms, subjects=subjects, current_section=current_section)
 
