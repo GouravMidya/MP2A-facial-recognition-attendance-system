@@ -1,0 +1,135 @@
+<!--
+Add teacher session when calling from app.py
+
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f4fb;
+            overflow: hidden;
+          }
+
+        .header{
+            display: flex;
+            justify-content: space-between; /* Align items on both ends */
+            align-items: center; /* Vertically center items */
+            position : fixed;
+            top : 0;
+            left:0;
+            width: 100%;
+            /*border: 3px solid #73AD21;*/
+            font-weight: 700;
+            font-size: 30px;
+            padding : 1%;
+            background-color: #ffffff;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+          }
+          
+          .header a{
+            text-decoration: none;
+            color: #012970;
+          }
+          
+          .welcome {
+          font-weight: 700;
+          font-size: 30px;
+          margin-right: 2%; /* Add some space between "Attendify" and "Welcome" */
+          }
+
+        .header a{
+            text-decoration: none;
+            color: #012970;
+        }
+
+        .welcome {
+            font-weight: 700;
+            font-size: 30px;
+            margin-right: 2%; /* Add some space between "Attendify" and "Welcome" */
+            }
+
+        #navbar {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            padding-top: 10px;
+            width: 20%;
+            background-color: #ffffff;
+            position: fixed;
+            overflow: auto;
+            left:0%;
+            top:9%;
+            height: 88%;
+          }
+        li a {
+            display: block;
+            color: #000;
+            padding: 8px 16px;
+            text-decoration: none;
+          }
+          
+        li a.active {
+            background-color: #012970;
+            color: white;
+          }
+          
+        li a:hover:not(.active) {
+            background-color: #555;
+            color: white;
+          }
+
+        /* End of standard template */
+
+        
+        
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="/dashboard">Attendify</a>
+        <!--
+
+        {% if teacher_id %}
+        Display teacher's name if available 
+            {% if teacher_name %}
+                <div class="welcome">Name: {{ teacher_name }} ID: {{teacher_id}}</div>
+            {% else %}
+                 Fallback to default message if teacher_name is not available 
+                <div class="welcome">Welcome Teacher</div>
+            {% endif %}
+        {% endif %}
+
+        -->
+    </div>
+
+    <ul id="navbar">
+        <section style="color:#012970 ;padding-left:3%;">Manage Classrooms</section>
+        <hr style="width: 75%;">
+
+        <li><a href="#" >View Attendance</a></li>
+        <li><a href="#" class="active" id="">Take Attendance</a></li>
+        <br>
+
+        <section style="color:#012970 ; padding-left:3%;">Manage Students</section>
+        <hr style="width: 75%;">
+        
+        <li><a href="#" id="">Add Students</a></li>
+        <li><a href="#" id="">View Students</a></li>
+        <li><a href="/about">About</a></li>
+
+    </ul>
+
+
+
+</body>
+</html>
