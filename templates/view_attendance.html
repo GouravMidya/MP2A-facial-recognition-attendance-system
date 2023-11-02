@@ -115,6 +115,18 @@ Add teacher session when calling from app.py
             justify-content: space-between; /* Align items on both ends */
             align-items: center; /* Vertically center items */
             }
+
+            #fetch-button{
+                display: flex;
+                background-color: #012970;
+                color: #f0f4fb;
+                margin-left: 2%;
+                padding: 1%;
+                border:1px solid #999;
+                border-radius: 12px;
+                margin-right: 1%;
+                font-size:20px;
+                }
         
     </style>
 </head>
@@ -158,31 +170,45 @@ Add teacher session when calling from app.py
         <h1 id="viewattendance-header">View Attendance</h1>
         <div class="viewattendance-box" style="Overflow:scroll">
             <form id="attendance-form" action="/viewattendance" method="POST">
-                <label for="classroom">Select Class:</label>
-                <select id="classroom" name="classroom">
-                    {% if classrooms %}
-                        {% for classroom in classrooms %}
-                            <option value="{{ classroom[2] }}">{{ classroom[2] }}</option>
-                        {% endfor %}
-                    {% else %}
-                        <option value="">No classrooms available</option>
-                    {% endif %}                
-                </select>
+                
+                
+                
+                <div style="position:fixed;top:30%;left:30%;font-size:20px;">
+                    <label for="classroom">Select Class:</label>
+                
+                
+                    <select id="classroom" name="classroom" style="font-size:20px;">
+                        {% if classrooms %}
+                            {% for classroom in classrooms %}
+                                <option value="{{ classroom[2] }}">{{ classroom[2] }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">No classrooms available</option>
+                        {% endif %}                
+                    </select>
+                </div>
             
-                <label for="subject">Select Subject:</label>
-                <select id="subject" name="subject">
-                    {% if subjects %}
-                        {% for subject in subjects %}
-                            <option value="{{ subject[0] }}">{{ subject[0] }}</option>
-                        {% endfor %}
-                    {% else %}
-                        <option value="">No Subject available</option>
-                    {% endif %}                
-                </select>
-            
-                <label for="date">Select Date:</label>
-                <input type="date" id="date" name="date">
-                <button type="submit" id="fetch-button">Fetch Records</button>
+                <div style="position:fixed;top:40%;left:30%;font-size:20px;">
+                    <label for="subject">Select Subject:</label>
+                    
+                    
+                    <select id="subject" name="subject" style="font-size:20px;">
+                        {% if subjects %}
+                            {% for subject in subjects %}
+                                <option value="{{ subject[0] }}" >{{ subject[0] }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">No Subject available</option>
+                        {% endif %}                
+                    </select>
+                </div>
+                <div style="position:fixed;top:50%;left:30%;font-size:20px;">
+                    <label for="date">Select Date:</label>
+                    <input type="date" id="date" name="date" style="font-size:20px;">
+                </div>
+                <div style="position:fixed;top:60%;left:30%;">
+                    <button type="submit" id="fetch-button">Fetch Records</button>
+                </div>
             </form>
         </div>
     </div>
