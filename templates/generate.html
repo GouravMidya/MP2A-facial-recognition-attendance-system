@@ -38,17 +38,24 @@
         <form action="/combine" method="post">
             <label for="class_select">Select Class:</label>
             <select name="class" id="class_select">
-                <option value="A">A</option>
-                <option value="class2">B</option>
-                <!-- Add more class options as needed -->
+                {% if classrooms %}
+                        {% for classroom in classrooms %}
+                            <option value="{{ classroom[2] }}">{{ classroom[2] }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No classrooms available</option>
+                    {% endif %}        
             </select>
 
             <label for="subject_select">Select Subject:</label>
             <select name="subject" id="subject_select">
-                <option value="DWM">DWM</option>
-                <option value="math">Math</option>
-                <option value="science">Science</option>
-                <!-- Add more subject options as needed -->
+                    {% if subjects %}
+                        {% for subject in subjects %}
+                            <option value="{{ subject[0] }}">{{ subject[0] }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No Subject available</option>
+                    {% endif %}   
             </select>
 
             <button type="submit">Combine Attendance</button>

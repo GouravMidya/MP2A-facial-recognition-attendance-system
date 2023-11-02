@@ -629,11 +629,19 @@ def combine():
             # Send the Excel file to the user for download
             return send_file(excel_output, as_attachment=True, download_name=f"{class_name}_{subject_name}_attendance.xlsx")
     print("HELLO")
-    flash("Please select a class and subject.")
+    return "Please select a class and subject."
 
 
 
 @app.route('/generate_reports')
 def generate_reports():
-    return render_template('generate.html')
+    sql_query = "SELECT ClassroomID, Year, Division FROM Classrooms"
+    db_cursor.execute(sql_query)
+    classrooms = db_cursor.fetchall()
+    
+    sql_query = "SELECT name FROM subjects"
+    db_cursor.execute(sql_query)
+    subjects = db_cursor.fetchall()    
+            
+    return render_template('generate.html', classrooms=classrooms, subjects=subjects)
 
