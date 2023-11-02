@@ -99,8 +99,11 @@ def generate_frames():
                 if name not in presence_timers:
                     presence_timers[name] = {'start_time': time.time(), 'duration': 0}
                 else:
-                    elapsed_time = time.time() - presence_timers[name]['start_time']
-
+                    timerval = request.form.get('timerval')
+                    if timerval is None:
+                        elapsed_time = 60
+                    else:
+                        elapsed_time = time.time() - presence_timers[name]['start_time']
                     # Check if a face has been detected for at least 5 seconds
                     if elapsed_time >= 3:
                         present.append(name)
