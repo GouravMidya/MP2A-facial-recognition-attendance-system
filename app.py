@@ -81,7 +81,6 @@ def generate_frames():
         else:
             if not reference_encodings_loaded:
                 present.clear()
-                print("H")
                 reference_encodings = load_reference_images()
                 reference_encodings_loaded = True
 
@@ -371,10 +370,9 @@ def index():
                 session['teacher_name'] = val[1]  # Use integer index to access 'FullName'
                 return redirect(url_for('dashboard'))
             else:
-                session['message'] = 'Login failed'
+                flash('Username and password do not match', 'error')  # Store an error message
         except Exception as e:
             print("Login failed:", str(e))
-            session['message'] = 'Login failed'
 
     return render_template('index.html')
 
@@ -458,13 +456,14 @@ def attendance_summary():
     
     # Check if excel_filename is available
     if excel_filename:
-        # Proceed with processing and reading the CSV file
-        with open(excel_filename, newline='') as csvfile:  # Use 'r' for reading
-            reader = csv.reader(csvfile)  # Create a CSV reader
+        if os.path.exists(excel_filename):
+            # Proceed with processing and reading the CSV file
+            with open(excel_filename, newline='') as csvfile:  # Use 'r' for reading
+                reader = csv.reader(csvfile)  # Create a CSV reader
 
-            # Read data from the CSV file
-            for row in reader:
-                attendance_data.append(row)
+                # Read data from the CSV file
+                for row in reader:
+                    attendance_data.append(row)
 
     sql_query = "SELECT StudentID, FullName, Email, image_name FROM Students"
     db_cursor.execute(sql_query)
@@ -539,15 +538,20 @@ def viewattendance():
     date = request.form.get('date')
     # Specify the path to your pre-existing CSV file
     csv_filename = date +'-'+classroom+'-'+subject+'.csv'
-    # Read data from the CSV file
-    attendance_data = []
-    with open(csv_filename, newline='') as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            attendance_data.append(row)
-
-    return render_template('attendance_summary.html', attendance_data=attendance_data)
-
+    if os.path.isfile(csv_filename):
+        # The file exists, so you can proceed to read its contents
+        # Read data from the CSV file
+        attendance_data = []
+        with open(csv_filename, newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                attendance_data.append(row)
+        
+        return render_template('attendance_summary.html', attendance_data=attendance_data)
+    
+    else:
+        # The file does not exist, handle this situation as per your requirements
+        return "Attendance record not found."
 
 
 # About Page Route
@@ -559,7 +563,6 @@ def about():
 # Generate Reports
 def combine_attendance(class_name, subject_name):
     # Define the directory where CSV files are stored
-    print("Hello Gourav")
     data_dir = r"/Users/prathameshnaik/Desktop/MP2A-facial-recognition-attendance-system/Attendance_Records"  # Directory path of location where we are saving csv files
 
     # List of CSV files for the selected class and subject
@@ -582,7 +585,6 @@ def combine_attendance(class_name, subject_name):
 
         # Remove the image name column by dropping the last column
         df = df.iloc[:, :-1]
-        name="Name"
         # Rename the attendance status column with the date
         df = df.rename(columns={df.columns[-1]: date})
 
@@ -610,14 +612,10 @@ def combine_attendance(class_name, subject_name):
 
 @app.route('/combine', methods=['POST'])
 def combine():
-    print("Hello")
     class_name = request.form.get('class')
-    print(class_name)
     subject_name = request.form.get('subject')
-    print(subject_name)
     if class_name and subject_name:
         combined_data = combine_attendance(class_name, subject_name)
-        print("Got data")
         
         if combined_data is not None:
             # Convert the DataFrame to an Excel file
@@ -628,7 +626,6 @@ def combine():
 
             # Send the Excel file to the user for download
             return send_file(excel_output, as_attachment=True, download_name=f"{class_name}_{subject_name}_attendance.xlsx")
-    print("HELLO")
     return "Please select a class and subject."
 
 

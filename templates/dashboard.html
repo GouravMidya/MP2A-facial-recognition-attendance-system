@@ -10,13 +10,25 @@
 </head>
 <style>
     button{
-background-color: #012970;
-color: #f0f4fb;
-margin-left: 5%;
-padding: 1%;
-border:1px solid #999;
-border-radius: 12px;
+    background-color: #012970;
+    color: #f0f4fb;
+    padding: 2%;
+    margin: 2%;
+    width: 70%;
+    border:1px solid #999;
+    border-radius: 20px;
+    font-weight: 700;
 }
+#addStudentContentP1 label {
+    display: inline-block;
+    text-align: right;
+    margin-right: 10px;
+}
+#addStudentContentP1 select {
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
 </style>
 <body>
     
@@ -53,36 +65,54 @@ border-radius: 12px;
     </ul>
 
 
-    
+    <img src="./static/images/iconbw.png" style="margin-left: 15%; opacity: 7%; margin-top: 7%;">
     <div id="viewattendance-container" style="display: none;">
         <h1 id="viewattendance-header">View Attendance</h1>
         <div class="viewattendance-box" style="Overflow:scroll">
             <form id="attendance-form" action="/viewattendance" method="POST">
-                <label for="classroom">Select Class:</label>
-                <select id="classroom" name="classroom">
-                    {% if classrooms %}
-                        {% for classroom in classrooms %}
-                            <option value="{{ classroom[2] }}">{{ classroom[2] }}</option>
-                        {% endfor %}
-                    {% else %}
-                        <option value="">No classrooms available</option>
-                    {% endif %}                
-                </select>
-            
-                <label for="subject">Select Subject:</label>
-                <select id="subject" name="subject">
-                    {% if subjects %}
-                        {% for subject in subjects %}
-                            <option value="{{ subject[0] }}">{{ subject[0] }}</option>
-                        {% endfor %}
-                    {% else %}
-                        <option value="">No Subject available</option>
-                    {% endif %}                
-                </select>
-            
-                <label for="date">Select Date:</label>
-                <input type="date" id="date" name="date">
-                <button type="submit" id="fetch-button">Fetch Records</button>
+                <table style="width: 100%;">
+                    <tr style="width: 100%;">
+                        <td style="width: 33%;">
+                            <label for="classroom">Select Class:</label>
+                            <select id="classroom" name="classroom">
+                                {% if classrooms %}
+                                    {% for classroom in classrooms %}
+                                        <option value="{{ classroom[2] }}">{{ classroom[2] }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="">No classrooms available</option>
+                                {% endif %}                
+                            </select>
+                        </td>
+                        <td style="width: 33%;">
+                            <label for="subject">Select Subject:</label>
+                            <select id="subject" name="subject">
+                                {% if subjects %}
+                                    {% for subject in subjects %}
+                                        <option value="{{ subject[0] }}">{{ subject[0] }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="">No Subject available</option>
+                                {% endif %}                
+                            </select>
+                        </td>
+                    
+                        <td style="width: 33%; margin-top: 5%; align-content: center;">
+                            <label for="date" style="margin-top: 5%;">Select Date:</label>
+                            <input type="date" style="margin-top: 5%;" id="date" name="date"><br><br>
+                        </td>
+                    </tr>
+                    <tr style="width: 100%; align-items: center;">
+                        <td style="width: 33%;">
+                        </td>
+                        <td style="width: 33%;">
+                            <button type="submit" style="width: 50%; display: block; margin: 0 auto;" id="fetch-button">Fetch Records</button>
+                        </td>
+                        <td style="width: 33%;">
+                        </td>
+                    </tr>
+                    
+                </table>
             </form>
         </div>
     </div>
@@ -93,8 +123,9 @@ border-radius: 12px;
         <h1 id="takeattendance-header">Take Attendance</h1>
         <div class="takeattendance-box">
             <div id="takeattendanceContentP1">
-                <table>
+                <table width="100%">
                     <tr>
+                    <td>
                         <label for="classroom1">Select Class:</label>
                         <select id="classroom1" name="classroom1">
                             {% if classrooms %}
@@ -105,8 +136,8 @@ border-radius: 12px;
                                 <option value="">No classrooms available</option>
                             {% endif %}                
                         </select>
-                    </tr>
-                    <tr>
+                    </td>
+                    <td>
                         <label for="subject1">Select Subject:</label>
                         <select id="subject1" name="subject1">
                             {% if subjects %}
@@ -117,8 +148,11 @@ border-radius: 12px;
                                 <option value="">No Subject available</option>
                             {% endif %}                
                         </select>
-                    </tr>
+                    </td>
+                    <td>
                         <button type="submit" id="startAttendance">Start Attendance</button>
+                    </td>
+                </tr>
                 </table>
     
             </div>
@@ -137,7 +171,7 @@ border-radius: 12px;
                             </div>
                         </textarea>
                     <form id="attendance-form2" action="/attendance_summary" method="post">
-                        <button type="submit" id="camera-button" style="margin-left: 10%; margin-top: -30%; margin-bottom: 20%;">Stop Camera</button>
+                        <button type="submit" id="camera-button" style="margin-left: 10%;width: 30%; margin-top: -30%; margin-bottom: 20%;">Stop Camera</button>
                     </form>
                 </div>
             </div>
@@ -149,31 +183,43 @@ border-radius: 12px;
         <div id="addStudentContentP1" style="display: block;">
             <h2 id="addStudentHeader">Add Student</h2>
             <form id="studentForm" action="/submit-student" method="post">
-                <table id="addstudentinfo" border="1">
-                    <tr>
-                        <td><label for="studentName">Student Name:</label></td>
-                        <td colspan="2"><input type="text" id="studentName" name="studentName" required></td>
-                    </tr>
-                    <tr>
-                        <td><label for="studentEmail">Email ID:</label></td>
-                        <td colspan="2"><input type="email" id="studentEmail" name="studentEmail" required></td>
-                    </tr>
-                </table>    
-                        <div>
-                            <button type="button" id="nextButton" onclick="submitFormAndShowP2()">Next</button>
-                        </div>
+                <label for="studentName">Student Name:</label>
+                <input type="text" id="studentName" name="studentName" required>
+        
+                <label for="studentEmail " style="margin-left:10% ;">Email ID:</label>
+                <input type="email" id="studentEmail" name="studentEmail" required>
+        
+                <label for="classroom" style="margin-left:10% ;">Classroom:</label>
+                <select id="classroom" name="classroom">
+                    {% if classrooms %}
+                        {% for classroom in classrooms %}
+                            <option value="{{ classroom[2] }}">{{ classroom[2] }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No classrooms available</option>
+                    {% endif %}
+                </select>
+        
+                <button type="button" id="nextButton" style="width: 20%; margin-left: 33%;" onclick="submitFormAndShowP2()">Next</button>
             </form>
         </div>
 
         <div id="addStudentContentP2" style="display: none;">
-            <label for="studentPicture">Student Picture:</label>
-            <input type="file" id="studentPicture" name="studentPicture" accept="image/*">
+            
+            <input type="file" id="studentPicture" name="studentPicture" accept="image/*" style="display: none;">
             <img id="previewImage" src="#" alt="Preview" style="display: none; max-width: 100px;">
-
-            <button onclick="startCamera()">Start Camera</button>
-            <button type="submit" onclick="takePicture()">Take Picture</button>
-            <canvas id="canvas" style="display:none;"></canvas>
-            <video id="video" style="display:none;"></video>
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 30%;"><button onclick="startCamera()">Start Camera</button></td>
+                    <td style="width: 30%;"><button type="submit" onclick="takePicture()">Take Picture</button></td>
+                </tr>
+            </table>
+            <label for="studentPicture"><h2>Student Picture:</h2></label>
+            <div style="margin-left: 18%; border-radius: 5%;">
+                <canvas id="canvas" style="display:none; border: 5px solid #012970; border-radius: 5%; margin-left: 15px;"></canvas>
+                <video id="video" style="display:none; border: 5px solid #012970; border-radius: 5%; margin-left: 15px;"></video>
+            </div>
+            
         </div>
         
     </div>

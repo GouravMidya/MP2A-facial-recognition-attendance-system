@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="static/style.css">
     <link rel="icon" type="image/png" href="./static/images/favicon.png">
 </head>
+<style>
+    .flash-messages {
+    list-style: none; /* Remove bullet points */
+    padding: 0;
+}
+
+.flash-error {
+    color: red; /* Customize the error message color */
+    /* Add any other styling you want */
+}
+</style>
 <body>
     <div class="header">
         <a href="/">Attendify</a>
@@ -21,9 +32,20 @@
         </div>
     </div>
 
-
+    
     <div class="login-container" id="login-container">
         <h1 class="login-head">Login</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                
+                    <ul class="flash-messages">
+                        {% for category, message in messages %}
+                            <li class="flash-{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                
+            {% endif %}
+        {% endwith %}
         <!-- Login form and content go here -->
         <form method="POST" action="{{ url_for('index') }}">
             <!-- Login form fields -->
