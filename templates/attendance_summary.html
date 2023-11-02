@@ -5,6 +5,9 @@
     <link rel="icon" type="image/png" href="./static/images/favicon.png">
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/attend.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+
 </head>
 <body>
     <div class="header">
@@ -25,9 +28,18 @@
                 <td>{{ record[1] }}</td>
                 <td>{{ record[2] }}</td>
                 <td>{{ record[3] }}</td>
-            </tr>
+                <td><a href="./static/recognized_faces/{{path}}/{{record[4]}}.jpg" data-lightbox="{{record[4]}}">
+                    <img src="./static/recognized_faces/{{path}}/{{record[4]}}.jpg" alt="Absent" style="max-height: 40px;">
+                </a>
+                </td>
             {% endfor %}
         </table>
     </div>
+    <script>
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true
+        });
+    </script>
 </body>
 </html>
