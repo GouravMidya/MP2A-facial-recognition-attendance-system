@@ -55,6 +55,8 @@ reference_encodings = load_reference_images() #loads reference images for face r
 current_section = "P1"
 global excel_filename
 excel_filename= None
+f= open(current_date+'.csv','w+',newline='')
+lnwriter = csv.writer(f)
 
 # Function for generating Frames 
 
@@ -230,7 +232,7 @@ def save_recognized_face(frame, face_location, name):
     face_image = frame
     
     # Define a directory to save the recognized face images (e.g., 'recognized_faces')
-    recognized_faces_dir = 'static/recognized_faces'
+    recognized_faces_dir = 'recognized_faces'
     
     if not os.path.exists(recognized_faces_dir):
         os.makedirs(recognized_faces_dir)
@@ -297,7 +299,7 @@ def save_face_from_base64(image_data):
 def generate_csv_filename(classroom, subject):
     now = datetime.now()
     current_time = now.strftime("%Y-%m-%d")  # Format the current time as a string
-    filename = f"Attendance_reports/{current_time}-{classroom}-{subject}.csv"
+    filename = f"{current_time}-{classroom}-{subject}.csv"
     with open(filename, 'w', newline='') as csvfile:
         # Create a CSV writer
         csv_writer = csv.writer(csvfile)
@@ -566,7 +568,7 @@ def viewattendance():
     subject = request.form.get('subject')
     date = request.form.get('date')
     # Specify the path to your pre-existing CSV file
-    csv_filename = 'Attendance_reports/'+date +'-'+classroom+'-'+subject+'.csv'
+    csv_filename = date +'-'+classroom+'-'+subject+'.csv'
     # Read data from the CSV file
     attendance_data = []
     with open(csv_filename, newline='') as csvfile:
