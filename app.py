@@ -313,13 +313,6 @@ if __name__ == "__main__":
     # Set the start method for multiprocessing to 'spawn'.
     multiprocessing.set_start_method('spawn')
     
-    #Configuring the camera for 320x240 resolution at 30 FPS using OpenCV.
-    camera = cv2.VideoCapture(0)
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-    camera.set(cv2.CAP_PROP_FPS, 30)
-    video_input = 0
-
     num_processes = 2  # Set the number of processes
 
     # Create a queue for passing frames to worker processes.
@@ -391,9 +384,6 @@ if __name__ == "__main__":
 
 
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
 
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
