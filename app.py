@@ -232,7 +232,7 @@ def save_recognized_face(frame, face_location, name):
     face_image = frame
     
     # Define a directory to save the recognized face images (e.g., 'recognized_faces')
-    recognized_faces_dir = 'recognized_faces'
+    recognized_faces_dir = './static/recognized_faces/'
     
     if not os.path.exists(recognized_faces_dir):
         os.makedirs(recognized_faces_dir)
@@ -335,47 +335,6 @@ if __name__ == "__main__":
     frame_id = 0  # Initialize the frame ID counter.
     fps_var = 0  # Initialize the FPS variable.
 
-    while True:
-        ret, frame = camera.read()  # Read a frame from the camera.
-
-        effheight, effwidth = frame.shape[:2]  # Get the height and width of the frame.
-
-        if effwidth < 20:
-            break  # If the frame width is too small, exit the loop.
-
-        xxx = 930  # Set the desired width for resizing the frame.
-        yyy = 10/16  # Set the desired aspect ratio for resizing the frame.
-
-
-        # Resize the frame to a smaller size.
-        small_frame = cv2.resize(frame, (xxx, int(xxx*yyy)))
-
-        if frame_id % 2 == 0:
-        # Check if the frame ID is even.
-
-            if not fi.full():
-                # Check if the frame queue is not full, then put the small frame into it.
-                fi.put(small_frame)
-
-                # Show the video frame using OpenCV.
-                cv2.imshow('Video', small_frame)
-
-                # Calculate and display the frames per second (FPS).
-                
-                # Update the FPS variable with the current time.
-                fps_var = time.time()
-
-            frame_id += 1  # Increment the frame ID.
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break  # If the 'q' key is pressed, exit the loop.
-
-    # Cleanup: Terminate worker processes.
-    for process in processes:
-        process.terminate()
-    
-    # Release the camera
-    camera.release()
         # Close all OpenCV windows
     cv2.destroyAllWindows()
     db_connection.close()
@@ -443,7 +402,7 @@ def signup():
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     global excel_filename
-    
+    global path
     # Initialize current_section with a default value
     current_section = "P1"
 
@@ -471,6 +430,7 @@ def dashboard():
         print(classroom)
         subject = request.form.get('subject')
         print(subject)
+        path=classroom+"_"+subject
         excel_filename = generate_csv_filename(classroom, subject)
         session['excel_filename'] = excel_filename  # Store it in the session
         current_section = "P2"
@@ -514,7 +474,7 @@ def attendance_summary():
             # Open the existing CSV file in append mode
         with open(excel_filename, 'a', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
-            student_with_status = [student_id, student_name, student_email, status]
+            student_with_status = [student_id, student_name, student_email, status,image_name]
             csv_writer.writerow(student_with_status)
             csvfile.flush()  # Flush the buffer to ensure the data is written immediately
             os.fsync(csvfile.fileno())  # Ensure the data is written to disk
@@ -527,7 +487,7 @@ def attendance_summary():
             attendance_data.append(row)
 
     present.clear()  # Clear the list of present students
-    return render_template('attendance_summary.html', attendance_data=attendance_data)
+    return render_template('attendance_summary.html', attendance_data=attendance_data,image_name=image_name,path=path)
 
 
 
