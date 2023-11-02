@@ -538,15 +538,20 @@ def viewattendance():
     date = request.form.get('date')
     # Specify the path to your pre-existing CSV file
     csv_filename = 'Attendance_Records/'+date +'-'+classroom+'-'+subject+'.csv'
-    # Read data from the CSV file
-    attendance_data = []
-    with open(csv_filename, newline='') as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            attendance_data.append(row)
-
-    return render_template('attendance_summary.html', attendance_data=attendance_data)
-
+    if os.path.isfile(csv_filename):
+        # The file exists, so you can proceed to read its contents
+        # Read data from the CSV file
+        attendance_data = []
+        with open(csv_filename, newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                attendance_data.append(row)
+        
+        return render_template('attendance_summary.html', attendance_data=attendance_data)
+    
+    else:
+        # The file does not exist, handle this situation as per your requirements
+        return "<h1>Attendance record not found.</h1>"
 
 
 # About Page Route
