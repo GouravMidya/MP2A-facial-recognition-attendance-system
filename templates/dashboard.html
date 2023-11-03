@@ -157,6 +157,7 @@
                 </table>
     
             </div>
+
             <div id="takeattendanceContentP2" >
                     <div id="camera-feed" style="margin-top: -0.5%;float: left; width: 70%; height: 60vh;">
                         <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Live Video Feed" width="100%" height="100%">
@@ -187,7 +188,7 @@
                 <label for="studentName">Student Name:</label>
                 <input type="text" id="studentName" name="studentName" required>
         
-                <label for="studentEmail " style="margin-left:10% ;">Email ID:</label>
+                <label  style="margin-left:10% ;">Email ID:</label>
                 <input type="email" id="studentEmail" name="studentEmail" required>
         
                 <label for="classroom" style="margin-left:10% ;">Classroom:</label>
@@ -207,7 +208,7 @@
 
         <div id="addStudentContentP2" style="display: none;">
             
-            <h1>Choose an Image</h1>
+            <h2 style="margin-top: -20px;">Choose an Image</h2>
             <form action="/upload" method="POST" enctype="multipart/form-data">
                 <label for="image_upload">Select an image:</label>
                 <input type="file" id="image_upload" name="image" accept="image/*">
@@ -221,7 +222,7 @@
                 </tr>
             </table>
             <label for="studentPicture"><h2>Student Picture:</h2></label>
-            <div style="margin-left: 18%; border-radius: 5%;">
+            <div id="studentPicture" style="margin-left: 18%; border-radius: 5%; margin-top: -4%;">
                 <canvas id="canvas" style="display:none; border: 5px solid #012970; border-radius: 5%; margin-left: 15px;"></canvas>
                 <video id="video" style="display:none; border: 5px solid #012970; border-radius: 5%; margin-left: 15px;"></video>
             </div>
@@ -250,7 +251,7 @@
                                     <td>{{ record[0] }}</td>
                                     <td>{{ record[1] }}</td>
                                     <td>{{ record[2] }}</td>
-                                    <td>{{ record[3] }}</td>
+                                    <td>{{record [3] }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
