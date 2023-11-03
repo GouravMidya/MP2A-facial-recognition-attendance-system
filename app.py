@@ -237,6 +237,13 @@ def submit_student():
     return redirect(url_for('dashboard'))  # Redirect to the dashboard after submission
 
 
+# Check if ip file is jpg or png
+
+def is_image_file(file_path):
+    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
+    return any(file_path.lower().endswith(ext) for ext in image_extensions)
+
+
 
 # Function to add recognized image to folder
 
@@ -346,6 +353,54 @@ if __name__ == "__main__":
     # Start the application (e.g., a web-based video stream).
     app.run(debug=True, threaded=True)
 
+
+# Generate Reports
+def combine_attendance(class_name, subject_name):
+    # Define the directory where CSV files are stored
+    data_dir = r"/Users/prathameshnaik/Desktop/MP2A-facial-recognition-attendance-system/Attendance_Records"  # Directory path of location where we are saving csv files
+
+    # List of CSV files for the selected class and subject
+    csv_files = []
+    for root, dirs, files in os.walk(data_dir):
+        for file in files:
+            # Check if the file name matches the pattern "date-class-subject.csv"
+            if file.endswith(f"-{class_name}-{subject_name}.csv"):
+                csv_files.append(os.path.join(root, file))
+    
+    if not csv_files:
+        return None  # No matching files found
+
+    # Create a dictionary to store attendance data
+    attendance_data = {}
+
+    for file in csv_files:
+        date = file.split("/")[-1].split(".")[0]  # Extract the date from the file name
+        df = pd.read_csv(file, header=None)  # Specify header=None to read without column headers
+
+        # Remove the image name column by dropping the last column
+        df = df.iloc[:, :-1]
+        # Rename the attendance status column with the date
+        df = df.rename(columns={df.columns[-1]: date})
+
+        # Set the index to the first column (studentid)
+        df = df.set_index(df.columns[0])
+
+        if date in attendance_data:
+            attendance_data[date] = pd.concat([attendance_data[date], df], axis=1, join="outer")
+        else:
+            attendance_data[date] = df
+
+    # Create a list of DataFrames and concatenate them by index
+    df_list = list(attendance_data.values())
+    combined_df = pd.concat(df_list, axis=1, join="outer")
+    
+    # Use groupby and aggregate to ensure that name and email columns appear only once
+    combined_df = combined_df.groupby(level=0, axis=1).first()
+    combined_df = combined_df.rename(columns={df.columns[0]: "Name"})
+    combined_df = combined_df.rename(columns={df.columns[1]: "Email"})
+
+        
+    return combined_df
 
 
 
@@ -560,55 +615,8 @@ def about():
     return render_template('about.html')
 
 
-# Generate Reports
-def combine_attendance(class_name, subject_name):
-    # Define the directory where CSV files are stored
-    data_dir = r"/Users/prathameshnaik/Desktop/MP2A-facial-recognition-attendance-system/Attendance_Records"  # Directory path of location where we are saving csv files
 
-    # List of CSV files for the selected class and subject
-    csv_files = []
-    for root, dirs, files in os.walk(data_dir):
-        for file in files:
-            # Check if the file name matches the pattern "date-class-subject.csv"
-            if file.endswith(f"-{class_name}-{subject_name}.csv"):
-                csv_files.append(os.path.join(root, file))
-    
-    if not csv_files:
-        return None  # No matching files found
-
-    # Create a dictionary to store attendance data
-    attendance_data = {}
-
-    for file in csv_files:
-        date = file.split("/")[-1].split(".")[0]  # Extract the date from the file name
-        df = pd.read_csv(file, header=None)  # Specify header=None to read without column headers
-
-        # Remove the image name column by dropping the last column
-        df = df.iloc[:, :-1]
-        # Rename the attendance status column with the date
-        df = df.rename(columns={df.columns[-1]: date})
-
-        # Set the index to the first column (studentid)
-        df = df.set_index(df.columns[0])
-
-        if date in attendance_data:
-            attendance_data[date] = pd.concat([attendance_data[date], df], axis=1, join="outer")
-        else:
-            attendance_data[date] = df
-
-    # Create a list of DataFrames and concatenate them by index
-    df_list = list(attendance_data.values())
-    combined_df = pd.concat(df_list, axis=1, join="outer")
-    
-    # Use groupby and aggregate to ensure that name and email columns appear only once
-    combined_df = combined_df.groupby(level=0, axis=1).first()
-    combined_df = combined_df.rename(columns={df.columns[0]: "Name"})
-    combined_df = combined_df.rename(columns={df.columns[1]: "Email"})
-
-        
-    return combined_df
-
-
+# Generate Reports routes
 
 @app.route('/combine', methods=['POST'])
 def combine():
@@ -642,3 +650,65 @@ def generate_reports():
             
     return render_template('generate.html', classrooms=classrooms, subjects=subjects)
 
+
+# Route to handle the submission of the form for adding a class
+@app.route('/add_class', methods=['POST'])
+def add_class():
+    if request.method == 'POST':
+        #class_name = request.form['class_name']
+        year = request.form['year']
+        division = request.form['division']
+        branch = request.form['branch']
+
+        # Connect to the MySQL database
+        conn = mysql.connector.connect(host="localhost",
+    user="root",
+    password="20032003",
+    database="attendify")#insert
+        cursor = conn.cursor()
+
+        # Insert the class into the database
+        insert_query = "INSERT INTO Classrooms (Year, Division, Branch) VALUES (%s, %s, %s)"
+        cursor.execute(insert_query, (year, division, branch))
+        conn.commit()
+
+        # Close the database connection
+        cursor.close()
+        conn.close()
+
+        # Redirect to a success page or display a success message
+        return "Class added successfully"
+    
+
+
+# Route to display the HTML form for adding a class
+@app.route('/add_classsub', methods=['GET'])
+def add_class_form():
+    return render_template('add_classsub.html')
+
+
+
+# Route to handle the submission of the form for adding a subject
+@app.route('/add_subject', methods=['POST'])
+def add_subject():
+    if request.method == 'POST':
+        subject_name = request.form['subject_name']
+
+        # Connect to the MySQL database
+        conn = mysql.connector.connect(host="localhost",
+    user="root",
+    password="20032003",
+    database="attendify")
+        cursor = conn.cursor()
+
+        # Insert the subject into the database
+        insert_query = "INSERT INTO subjects (name) VALUES (%s)"
+        cursor.execute(insert_query, (subject_name,))
+        conn.commit()
+
+        # Close the database connection
+        cursor.close()
+        conn.close()
+
+        # Redirect to a success page or display a success message
+        return "Subject added successfully"
