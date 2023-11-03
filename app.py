@@ -303,6 +303,11 @@ def save_face_from_base64(image_data):
         with open(os.path.join(app.config['UPLOAD_FOLDER'], f"{student_name}_{id}.png"), 'wb') as img_file:
             img_file.write(image_data_decoded)
 
+        temp="./static/"+app.config['UPLOAD_FOLDER']
+        print(temp)
+        with open(os.path.join(temp, f"{student_name}_{id}.png"), 'wb') as img_file:
+            img_file.write(image_data_decoded)
+
         # Update the "image_name" field in the database
         db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", (student_email, student_name))
         id = db_cursor.fetchone()

@@ -242,7 +242,10 @@
                                 <th>Roll Number</th>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th>Image_Name</th>
+                                <th>Attendance</th>
+                                <th>Total Attendance</th>
+                                <th>Attendance Percentage</th>
+                                <th>Image</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -251,7 +254,16 @@
                                     <td>{{ record[0] }}</td>
                                     <td>{{ record[1] }}</td>
                                     <td>{{ record[2] }}</td>
-                                    <td>{{record [3] }}</td>
+                                    <td>{{ record[4] }}</td>
+                                    <td>{{ record[5] }}</td>
+                                    <td>
+                                        {% if record[5] != 0 %}
+                                            {{ '%.2f'|format((record[4] / record[5]) * 100) }}
+                                        {% else %}
+                                            Division by zero
+                                        {% endif %}
+                                    </td>
+                                    <td><a><img src="./static/facedb/{{ record[3] }}.png" alt="No Image Found" style="max-height: 40px;"></a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
