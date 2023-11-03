@@ -104,7 +104,7 @@ def generate_frames():
                 text_y = 30
 
                 # Put the text on the frame
-                cv2.putText(frame, matched_names_text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), 2)
+                cv2.putText(frame, matched_names_text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 0, 0), 2)
 
                 if name not in presence_timers:
                     presence_timers[name] = {'start_time': time.time(), 'duration': 0}
@@ -331,32 +331,6 @@ def generate_csv_filename(classroom, subject):
         csv_writer = csv.writer(csvfile)
     return filename
 
-
-
-# Main Function Begins Here :
-
-if __name__ == "__main__":
-    # Set the start method for multiprocessing to 'spawn'.
-    multiprocessing.set_start_method('spawn')
-    
-    num_processes = 2  # Set the number of processes
-
-    # Create a queue for passing frames to worker processes.
-    fi = Queue(maxsize=14)
-    
-    # Create a parent-child Pipe for communication with worker processes.
-    parent_p, child_p = Pipe()
-
-    processes = []
-
-    # Start worker processes for face recognition.
-    for _ in range(num_processes):
-        process = Process(target=face_recognition_worker, args=(fi, child_p))
-        process.start()
-        processes.append(process)
-
-    # Start the application (e.g., a web-based video stream).
-    app.run(debug=True, threaded=True)
 
 
 # Generate Reports
@@ -737,3 +711,33 @@ def upload_image():
             return 'Image uploaded successfully.'
 
     return 'Image not uploaded.'
+
+
+
+
+
+
+# Main Function Begins Here :
+
+if __name__ == "__main__":
+    # Set the start method for multiprocessing to 'spawn'.
+    multiprocessing.set_start_method('spawn')
+    
+    num_processes = 2  # Set the number of processes
+
+    # Create a queue for passing frames to worker processes.
+    fi = Queue(maxsize=14)
+    
+    # Create a parent-child Pipe for communication with worker processes.
+    parent_p, child_p = Pipe()
+
+    processes = []
+
+    # Start worker processes for face recognition.
+    for _ in range(num_processes):
+        process = Process(target=face_recognition_worker, args=(fi, child_p))
+        process.start()
+        processes.append(process)
+
+    # Start the application (e.g., a web-based video stream).
+    app.run(debug=True, threaded=True)

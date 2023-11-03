@@ -26,11 +26,26 @@
             color: #012970;
           }
 
-        .content{
-            position : fixed;
-            top : 20%;
-            left:0;
-        }
+          .content {
+    text-align: center; /* Center-align the contents horizontally */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
+    height: 100vh; /* Make the div take the full viewport height */
+    
+}
+
+        #button{
+    background-color: #012970;
+    color: #f0f4fb;
+    padding: 2%;
+    margin: 2%;
+    width: 70%;
+    border:1px solid #999;
+    border-radius: 20px;
+    font-weight: 700;
+}
     </style>
 </head>
 <body>
@@ -42,22 +57,22 @@
         <h1>Add Class</h1>
         <form action="/add_class" method="POST">
             <label for="year">Year:</label>
-            <input type="number" id="year" name="year" required><br>
+            <input type="number" id="year" name="year" required><br><br>
 
             <label for="division">Division:</label>
-            <input type="text" id="division" name="division" required><br>
+            <input type="text" id="division" name="division" required><br><br>
 
             <label for="branch">Branch:</label>
-            <input type="text" id="branch" name="branch" required><br>
+            <input type="text" id="branch" name="branch" required><br><br>
 
-            <input type="submit" value="Add Class">
+            <input type="submit" value="Add Class" id="button">
         </form>
 
         <h1>Add Subject</h1>
         <form action="/add_subject" method="POST">
             <label for="subject_name">Subject Name:</label>
-            <input type="text" id="subject_name" name="subject_name" required>
-            <input type="submit" value="Add Subject">
+            <input type="text" id="subject_name" name="subject_name" required><br>
+            <input type="submit" value="Add Subject" id="button">
         </form>
     </div>  
 
