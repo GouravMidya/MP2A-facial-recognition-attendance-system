@@ -712,3 +712,21 @@ def add_subject():
 
         # Redirect to a success page or display a success message
         return "Subject added successfully"
+    
+
+    # Route to handle image upload
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'image' in request.files:
+        image = request.files['image']
+        student_name=session['student_name'] 
+        student_email=session['student_email'] 
+        db_cursor.execute("SELECT StudentID FROM Students WHERE Email = %s and FullName = %s;", (student_email, student_name))
+        id = db_cursor.fetchone()
+        image_name = f"{student_name}_{id[0]}"
+        if image.filename != '':
+            # Save the image to the "uploads" folder
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], (image_name)+'.png'))
+            return 'Image uploaded successfully.'
+
+    return 'Image not uploaded.'

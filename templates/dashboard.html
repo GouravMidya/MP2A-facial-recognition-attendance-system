@@ -207,7 +207,12 @@
 
         <div id="addStudentContentP2" style="display: none;">
             
-            <input type="file" id="studentPicture" name="studentPicture" accept="image/*" style="display: none;">
+            <h1>Choose an Image</h1>
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <label for="image_upload">Select an image:</label>
+                <input type="file" id="image_upload" name="image" accept="image/*">
+                <input type="submit" value="Upload">
+            </form>
             <img id="previewImage" src="#" alt="Preview" style="display: none; max-width: 100px;">
             <table style="width: 100%;">
                 <tr>
