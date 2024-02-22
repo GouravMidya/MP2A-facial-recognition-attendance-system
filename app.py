@@ -336,8 +336,8 @@ def generate_csv_filename(classroom, subject):
 # Generate Reports
 def combine_attendance(class_name, subject_name):
     # Define the directory where CSV files are stored
-    data_dir = r"/Users/prathameshnaik/Desktop/MP2A-facial-recognition-attendance-system/Attendance_Records"  # Directory path of location where we are saving csv files
-
+    data_dir = r"/Users/prathameshnaik/Desktop/Attendify/Attendance_Records"  # Directory path of location where we are saving csv files
+    print("Hello",data_dir)
     # List of CSV files for the selected class and subject
     csv_files = []
     for root, dirs, files in os.walk(data_dir):
